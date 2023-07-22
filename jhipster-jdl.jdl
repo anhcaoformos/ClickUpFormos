@@ -1,0 +1,21 @@
+
+entity Profile {
+	name String
+    username String
+    password String
+    apiKey String
+    token String
+    baseUrl String
+
+}
+entity User {}
+relationship OneToMany {
+    User to Profile { user }
+}
+// Use Data Transfer Objects (DTO)
+// dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl
+// Set an angular suffix
+// angularSuffix * with mySuffix

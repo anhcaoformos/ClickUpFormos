@@ -48,6 +48,7 @@ public class CacheConfiguration {
             createCache(cm, com.formos.domain.User.class.getName());
             createCache(cm, com.formos.domain.Authority.class.getName());
             createCache(cm, com.formos.domain.User.class.getName() + ".authorities");
+            createCache(cm, com.formos.domain.Profile.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

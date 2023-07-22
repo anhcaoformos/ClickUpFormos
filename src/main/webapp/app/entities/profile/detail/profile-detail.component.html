@@ -1,0 +1,56 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="profile">
+      <h2 data-cy="profileDetailsHeading"><span jhiTranslate="clickupApp.profile.detail.title">Profile</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ profile.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.name">Name</span></dt>
+        <dd>
+          <span>{{ profile.name }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.username">Username</span></dt>
+        <dd>
+          <span>{{ profile.username }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.password">Password</span></dt>
+        <dd>
+          <span>{{ profile.password }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.apiKey">Api Key</span></dt>
+        <dd>
+          <span>{{ profile.apiKey }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.token">Token</span></dt>
+        <dd>
+          <span>{{ profile.token }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.baseUrl">Base Url</span></dt>
+        <dd>
+          <span>{{ profile.baseUrl }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.user">User</span></dt>
+        <dd>
+          <span>{{ profile.user?.id }}</span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/profile', profile.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

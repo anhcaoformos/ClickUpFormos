@@ -1,0 +1,18 @@
+{
+  "applications": "*",
+  "changelogDate": "20230722112704",
+  "entityTableName": "user",
+  "fields": [],
+  "name": "User",
+  "relationships": [
+    {
+      "otherEntityName": "profile",
+      "otherEntityRelationshipName": "user",
+      "relationshipName": "profile",
+      "relationshipSide": "left",
+      "relationshipType": "one-to-many"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}
