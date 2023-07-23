@@ -37,7 +37,7 @@ public interface DownloadHistoryService {
      *
      * @return the list of entities.
      */
-    List<DownloadHistory> findAll();
+    List<DownloadHistory> findAllByCurrentUser();
 
     /**
      * Get the "id" downloadHistory.
@@ -53,4 +53,11 @@ public interface DownloadHistoryService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Get all the downloadHistories by profile.
+     *
+     * @return the list of entities by profile.
+     */
+    List<DownloadHistory> findAllByProfile(Long profileId);
 }

@@ -59,9 +59,9 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<DownloadHistory> findAll() {
-        log.debug("Request to get all DownloadHistories");
-        return downloadHistoryRepository.findAll();
+    public List<DownloadHistory> findAllByCurrentUser() {
+        log.debug("Request to get all DownloadHistories by current user");
+        return downloadHistoryRepository.findAllByCurrentUser();
     }
 
     @Override
@@ -75,5 +75,12 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     public void delete(Long id) {
         log.debug("Request to delete DownloadHistory : {}", id);
         downloadHistoryRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DownloadHistory> findAllByProfile(Long profileId) {
+        log.debug("Request to get all DownloadHistories by profile id");
+        return downloadHistoryRepository.findAllByProfileId(profileId);
     }
 }

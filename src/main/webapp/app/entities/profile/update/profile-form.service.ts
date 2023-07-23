@@ -22,9 +22,7 @@ type ProfileFormGroupContent = {
   username: FormControl<IProfile['username']>;
   password: FormControl<IProfile['password']>;
   apiKey: FormControl<IProfile['apiKey']>;
-  token: FormControl<IProfile['token']>;
   baseUrl: FormControl<IProfile['baseUrl']>;
-  user: FormControl<IProfile['user']>;
 };
 
 export type ProfileFormGroup = FormGroup<ProfileFormGroupContent>;
@@ -56,11 +54,9 @@ export class ProfileFormService {
       apiKey: new FormControl(profileRawValue.apiKey, {
         validators: [Validators.required],
       }),
-      token: new FormControl(profileRawValue.token),
       baseUrl: new FormControl(profileRawValue.baseUrl, {
         validators: [Validators.required],
       }),
-      user: new FormControl(profileRawValue.user),
     });
   }
 

@@ -1,5 +1,6 @@
 package com.formos.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -42,6 +43,7 @@ public class Profile implements Serializable {
     private String apiKey;
 
     @Column(name = "token")
+    @JsonIgnore
     private String token;
 
     @NotNull

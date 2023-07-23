@@ -6,7 +6,6 @@ export interface IProfile {
   username?: string | null;
   password?: string | null;
   apiKey?: string | null;
-  token?: string | null;
   baseUrl?: string | null;
   user?: Pick<IUser, 'id'> | null;
 }

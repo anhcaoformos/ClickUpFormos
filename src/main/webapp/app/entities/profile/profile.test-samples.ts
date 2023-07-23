@@ -15,7 +15,6 @@ export const sampleWithPartialData: IProfile = {
   username: 'Intranet barring Accounts',
   password: 'Pickup Guilder Hybrid',
   apiKey: 'joule who Cambridgeshire',
-  token: 'Cambodia male Research',
   baseUrl: 'immense',
 };
 
@@ -25,7 +24,6 @@ export const sampleWithFullData: IProfile = {
   username: 'seize matrix',
   password: 'connecting earum hectare',
   apiKey: 'Chips',
-  token: 'Borders',
   baseUrl: 'whoa clear',
 };
 

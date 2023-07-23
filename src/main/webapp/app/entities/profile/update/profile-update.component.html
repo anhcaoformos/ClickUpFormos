@@ -8,11 +8,6 @@
       <div>
         <jhi-alert-error></jhi-alert-error>
 
-        <div class="mb-3" *ngIf="editForm.controls.id.value !== null">
-          <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
-          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
-        </div>
-
         <div class="mb-3">
           <label class="form-label" jhiTranslate="clickupApp.profile.name" for="field_name">Name</label>
           <input type="text" class="form-control" name="name" id="field_name" data-cy="name" formControlName="name" />
@@ -62,11 +57,6 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label" jhiTranslate="clickupApp.profile.token" for="field_token">Token</label>
-          <input type="text" class="form-control" name="token" id="field_token" data-cy="token" formControlName="token" />
-        </div>
-
-        <div class="mb-3">
           <label class="form-label" jhiTranslate="clickupApp.profile.baseUrl" for="field_baseUrl">Base Url</label>
           <input type="text" class="form-control" name="baseUrl" id="field_baseUrl" data-cy="baseUrl" formControlName="baseUrl" />
           <div *ngIf="editForm.get('baseUrl')!.invalid && (editForm.get('baseUrl')!.dirty || editForm.get('baseUrl')!.touched)">
@@ -78,14 +68,6 @@
               This field is required.
             </small>
           </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" jhiTranslate="clickupApp.profile.user" for="field_user">User</label>
-          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
-            <option [ngValue]="null"></option>
-            <option [ngValue]="userOption" *ngFor="let userOption of usersSharedCollection">{{ userOption.id }}</option>
-          </select>
         </div>
       </div>
 

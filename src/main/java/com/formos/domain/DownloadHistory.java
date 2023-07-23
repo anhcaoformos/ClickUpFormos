@@ -28,7 +28,7 @@ public class DownloadHistory implements Serializable {
     @Column(name = "history_id")
     private String historyId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JsonIgnoreProperties(value = { "downloadHistories", "user" }, allowSetters = true)
     private Profile profile;
 

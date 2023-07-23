@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
-    @Query("select profile from Profile profile where profile.user.login = ?#{principal.username}")
+    @Query("select profile from Profile profile where profile.user.login = ?#{authentication.name}")
     List<Profile> findByUserIsCurrentUser();
 }

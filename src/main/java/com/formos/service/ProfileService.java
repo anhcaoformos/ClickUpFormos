@@ -48,6 +48,13 @@ public interface ProfileService {
     Optional<Profile> findOne(Long id);
 
     /**
+     * Get profiles by current user.
+     *
+     * @return the list of entities.
+     */
+    List<Profile> findAllByCurrentUser();
+
+    /**
      * Delete the "id" profile.
      *
      * @param id the id of the entity.

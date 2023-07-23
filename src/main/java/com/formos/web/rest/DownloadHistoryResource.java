@@ -136,9 +136,9 @@ public class DownloadHistoryResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of downloadHistories in body.
      */
     @GetMapping("/download-histories")
-    public List<DownloadHistory> getAllDownloadHistories() {
-        log.debug("REST request to get all DownloadHistories");
-        return downloadHistoryService.findAll();
+    public List<DownloadHistory> getAllDownloadHistoriesByCurrentUser() {
+        log.debug("REST request to get all DownloadHistories by current user");
+        return downloadHistoryService.findAllByCurrentUser();
     }
 
     /**
@@ -168,5 +168,11 @@ public class DownloadHistoryResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @GetMapping("/download-histories/profile/{profileId}")
+    public List<DownloadHistory> getDownloadHistoryByProfile(@PathVariable Long profileId) {
+        log.debug("REST request to get DownloadHistory by profile id: {}", profileId);
+        return downloadHistoryService.findAllByProfile(profileId);
     }
 }

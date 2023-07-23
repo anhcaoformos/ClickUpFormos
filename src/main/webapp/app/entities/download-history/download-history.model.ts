@@ -4,7 +4,7 @@ export interface IDownloadHistory {
   id: number;
   taskId?: string | null;
   historyId?: string | null;
-  profile?: Pick<IProfile, 'id'> | null;
+  profile?: IProfile | null;
 }
 
 export type NewDownloadHistory = Omit<IDownloadHistory, 'id'> & { id: null };

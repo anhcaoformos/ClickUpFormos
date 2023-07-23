@@ -100,6 +100,7 @@
       "open": "Open",
       "save": "Save",
       "view": "View",
+      "showDownloadHistory": "Show Download History",
       "show": "Show {{otherEntity}}"
     },
     "detail": {

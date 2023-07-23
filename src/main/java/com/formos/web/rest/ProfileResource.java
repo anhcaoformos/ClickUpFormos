@@ -1,8 +1,11 @@
 package com.formos.web.rest;
 
 import com.formos.domain.Profile;
+import com.formos.domain.User;
 import com.formos.repository.ProfileRepository;
+import com.formos.service.ClickUpService;
 import com.formos.service.ProfileService;
+import com.formos.service.UserService;
 import com.formos.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -37,9 +40,12 @@ public class ProfileResource {
 
     private final ProfileRepository profileRepository;
 
-    public ProfileResource(ProfileService profileService, ProfileRepository profileRepository) {
+    private final ClickUpService clickUpService;
+
+    public ProfileResource(ProfileService profileService, ProfileRepository profileRepository, ClickUpService clickUpService) {
         this.profileService = profileService;
         this.profileRepository = profileRepository;
+        this.clickUpService = clickUpService;
     }
 
     /**
@@ -137,11 +143,11 @@ public class ProfileResource {
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of profiles in body.
      */
-    @GetMapping("/profiles")
-    public List<Profile> getAllProfiles() {
-        log.debug("REST request to get all Profiles");
-        return profileService.findAll();
-    }
+    //    @GetMapping("/profiles")
+    //    public List<Profile> getAllProfiles() {
+    //        log.debug("REST request to get all Profiles");
+    //        return profileService.findAll();
+    //    }
 
     /**
      * {@code GET  /profiles/:id} : get the "id" profile.
@@ -170,5 +176,22 @@ public class ProfileResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code GET  /profiles} : get the profiles by current user.
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the profile, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/profiles")
+    public List<Profile> getProfilesByCurrentUser() {
+        log.debug("REST request to get Profiles by current user");
+        return profileService.findAllByCurrentUser();
+    }
+
+    @GetMapping("/profiles/export")
+    public void exportClickUp() throws Exception {
+        String taskId = "863g42arv";
+        clickUpService.exportPdfForTask(1L, taskId);
     }
 }
