@@ -1,23 +1,27 @@
 {
   "applications": "*",
-  "changelogDate": "20230722112703",
+  "changelogDate": "20230723030453",
   "entityTableName": "profile",
   "fields": [
     {
       "fieldName": "name",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "username",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "password",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "apiKey",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "token",
@@ -25,11 +29,19 @@
     },
     {
       "fieldName": "baseUrl",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     }
   ],
   "name": "Profile",
   "relationships": [
+    {
+      "otherEntityName": "downloadHistory",
+      "otherEntityRelationshipName": "profile",
+      "relationshipName": "downloadHistory",
+      "relationshipSide": "left",
+      "relationshipType": "one-to-many"
+    },
     {
       "otherEntityName": "user",
       "relationshipName": "user",

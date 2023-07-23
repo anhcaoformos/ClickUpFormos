@@ -144,6 +144,91 @@ class ProfileResourceIT {
 
     @Test
     @Transactional
+    void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = profileRepository.findAll().size();
+        // set the field null
+        profile.setName(null);
+
+        // Create the Profile, which fails.
+
+        restProfileMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(profile)))
+            .andExpect(status().isBadRequest());
+
+        List<Profile> profileList = profileRepository.findAll();
+        assertThat(profileList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkUsernameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = profileRepository.findAll().size();
+        // set the field null
+        profile.setUsername(null);
+
+        // Create the Profile, which fails.
+
+        restProfileMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(profile)))
+            .andExpect(status().isBadRequest());
+
+        List<Profile> profileList = profileRepository.findAll();
+        assertThat(profileList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkPasswordIsRequired() throws Exception {
+        int databaseSizeBeforeTest = profileRepository.findAll().size();
+        // set the field null
+        profile.setPassword(null);
+
+        // Create the Profile, which fails.
+
+        restProfileMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(profile)))
+            .andExpect(status().isBadRequest());
+
+        List<Profile> profileList = profileRepository.findAll();
+        assertThat(profileList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkApiKeyIsRequired() throws Exception {
+        int databaseSizeBeforeTest = profileRepository.findAll().size();
+        // set the field null
+        profile.setApiKey(null);
+
+        // Create the Profile, which fails.
+
+        restProfileMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(profile)))
+            .andExpect(status().isBadRequest());
+
+        List<Profile> profileList = profileRepository.findAll();
+        assertThat(profileList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkBaseUrlIsRequired() throws Exception {
+        int databaseSizeBeforeTest = profileRepository.findAll().size();
+        // set the field null
+        profile.setBaseUrl(null);
+
+        // Create the Profile, which fails.
+
+        restProfileMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(profile)))
+            .andExpect(status().isBadRequest());
+
+        List<Profile> profileList = profileRepository.findAll();
+        assertThat(profileList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllProfiles() throws Exception {
         // Initialize the database
         profileRepository.saveAndFlush(profile);

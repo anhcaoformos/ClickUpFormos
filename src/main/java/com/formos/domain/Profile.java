@@ -2,7 +2,10 @@ package com.formos.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -22,23 +25,33 @@ public class Profile implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
+    @NotNull
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "username")
+    @NotNull
+    @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "password")
+    @NotNull
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "api_key")
+    @NotNull
+    @Column(name = "api_key", nullable = false)
     private String apiKey;
 
     @Column(name = "token")
     private String token;
 
-    @Column(name = "base_url")
+    @NotNull
+    @Column(name = "base_url", nullable = false)
     private String baseUrl;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "profile" }, allowSetters = true)
+    private Set<DownloadHistory> downloadHistories = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "profiles" }, allowSetters = true)
@@ -135,6 +148,37 @@ public class Profile implements Serializable {
 
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
+    }
+
+    public Set<DownloadHistory> getDownloadHistories() {
+        return this.downloadHistories;
+    }
+
+    public void setDownloadHistories(Set<DownloadHistory> downloadHistories) {
+        if (this.downloadHistories != null) {
+            this.downloadHistories.forEach(i -> i.setProfile(null));
+        }
+        if (downloadHistories != null) {
+            downloadHistories.forEach(i -> i.setProfile(this));
+        }
+        this.downloadHistories = downloadHistories;
+    }
+
+    public Profile downloadHistories(Set<DownloadHistory> downloadHistories) {
+        this.setDownloadHistories(downloadHistories);
+        return this;
+    }
+
+    public Profile addDownloadHistory(DownloadHistory downloadHistory) {
+        this.downloadHistories.add(downloadHistory);
+        downloadHistory.setProfile(this);
+        return this;
+    }
+
+    public Profile removeDownloadHistory(DownloadHistory downloadHistory) {
+        this.downloadHistories.remove(downloadHistory);
+        downloadHistory.setProfile(null);
+        return this;
     }
 
     public User getUser() {

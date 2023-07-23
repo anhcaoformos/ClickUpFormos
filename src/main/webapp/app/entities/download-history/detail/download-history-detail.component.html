@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="downloadHistory">
+      <h2 data-cy="downloadHistoryDetailsHeading"><span jhiTranslate="clickupApp.downloadHistory.detail.title">Download History</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ downloadHistory.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.downloadHistory.taskId">Task Id</span></dt>
+        <dd>
+          <span>{{ downloadHistory.taskId }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.downloadHistory.historyId">History Id</span></dt>
+        <dd>
+          <span>{{ downloadHistory.historyId }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.downloadHistory.profile">Profile</span></dt>
+        <dd>
+          <div *ngIf="downloadHistory.profile">
+            <a [routerLink]="['/profile', downloadHistory.profile.id, 'view']">{{ downloadHistory.profile.id }}</a>
+          </div>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/download-history', downloadHistory.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -8,6 +8,7 @@
       "entities": {
         "main": "Entities",
         "profile": "Profile",
+        "downloadHistory": "Download History",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

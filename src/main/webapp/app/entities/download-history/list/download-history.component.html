@@ -1,0 +1,106 @@
+<div>
+  <h2 id="page-heading" data-cy="DownloadHistoryHeading">
+    <span jhiTranslate="clickupApp.downloadHistory.home.title">Download Histories</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span jhiTranslate="clickupApp.downloadHistory.home.refreshListLabel">Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-download-history"
+        [routerLink]="['/download-history/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span jhiTranslate="clickupApp.downloadHistory.home.createLabel"> Create a new Download History </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="downloadHistories?.length === 0">
+    <span jhiTranslate="clickupApp.downloadHistory.home.notFound">No Download Histories found</span>
+  </div>
+
+  <div class="table-responsive table-entities" id="entities" *ngIf="downloadHistories && downloadHistories.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="navigateToWithComponentValues()">
+          <th scope="col" jhiSortBy="id">
+            <div class="d-flex">
+              <span jhiTranslate="global.field.id">ID</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="taskId">
+            <div class="d-flex">
+              <span jhiTranslate="clickupApp.downloadHistory.taskId">Task Id</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="historyId">
+            <div class="d-flex">
+              <span jhiTranslate="clickupApp.downloadHistory.historyId">History Id</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="profile.id">
+            <div class="d-flex">
+              <span jhiTranslate="clickupApp.downloadHistory.profile">Profile</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let downloadHistory of downloadHistories; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/download-history', downloadHistory.id, 'view']">{{ downloadHistory.id }}</a>
+          </td>
+          <td>{{ downloadHistory.taskId }}</td>
+          <td>{{ downloadHistory.historyId }}</td>
+          <td>
+            <div *ngIf="downloadHistory.profile">
+              <a [routerLink]="['/profile', downloadHistory.profile.id, 'view']">{{ downloadHistory.profile.id }}</a>
+            </div>
+          </td>
+          <td class="text-end">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/download-history', downloadHistory.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+              </button>
+
+              <button
+                type="submit"
+                [routerLink]="['/download-history', downloadHistory.id, 'edit']"
+                class="btn btn-primary btn-sm"
+                data-cy="entityEditButton"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(downloadHistory)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

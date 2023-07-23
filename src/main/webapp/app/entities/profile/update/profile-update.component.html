@@ -16,21 +16,49 @@
         <div class="mb-3">
           <label class="form-label" jhiTranslate="clickupApp.profile.name" for="field_name">Name</label>
           <input type="text" class="form-control" name="name" id="field_name" data-cy="name" formControlName="name" />
+          <div *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.required" jhiTranslate="entity.validation.required">
+              This field is required.
+            </small>
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label" jhiTranslate="clickupApp.profile.username" for="field_username">Username</label>
           <input type="text" class="form-control" name="username" id="field_username" data-cy="username" formControlName="username" />
+          <div *ngIf="editForm.get('username')!.invalid && (editForm.get('username')!.dirty || editForm.get('username')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('username')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label" jhiTranslate="clickupApp.profile.password" for="field_password">Password</label>
           <input type="text" class="form-control" name="password" id="field_password" data-cy="password" formControlName="password" />
+          <div *ngIf="editForm.get('password')!.invalid && (editForm.get('password')!.dirty || editForm.get('password')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('password')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label" jhiTranslate="clickupApp.profile.apiKey" for="field_apiKey">Api Key</label>
           <input type="text" class="form-control" name="apiKey" id="field_apiKey" data-cy="apiKey" formControlName="apiKey" />
+          <div *ngIf="editForm.get('apiKey')!.invalid && (editForm.get('apiKey')!.dirty || editForm.get('apiKey')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('apiKey')?.errors?.required" jhiTranslate="entity.validation.required">
+              This field is required.
+            </small>
+          </div>
         </div>
 
         <div class="mb-3">
@@ -41,6 +69,15 @@
         <div class="mb-3">
           <label class="form-label" jhiTranslate="clickupApp.profile.baseUrl" for="field_baseUrl">Base Url</label>
           <input type="text" class="form-control" name="baseUrl" id="field_baseUrl" data-cy="baseUrl" formControlName="baseUrl" />
+          <div *ngIf="editForm.get('baseUrl')!.invalid && (editForm.get('baseUrl')!.dirty || editForm.get('baseUrl')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('baseUrl')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
         </div>
 
         <div class="mb-3">

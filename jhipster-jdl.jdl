@@ -1,17 +1,28 @@
 
 entity Profile {
-	name String
-    username String
-    password String
-    apiKey String
+	name String required
+    username String required
+    password String required
+    apiKey String required
     token String
-    baseUrl String
+    baseUrl String required
 
 }
 entity User {}
+
+entity DownloadHistory {
+    taskId String
+    historyId String
+}
+
 relationship OneToMany {
     User to Profile { user }
 }
+
+relationship OneToMany {
+    Profile to DownloadHistory { profile }
+}
+
 // Use Data Transfer Objects (DTO)
 // dto * with mapstruct
 

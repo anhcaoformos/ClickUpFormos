@@ -24,6 +24,7 @@
       "apiKey": "Api Key",
       "token": "Token",
       "baseUrl": "Base Url",
+      "downloadHistory": "Download History",
       "user": "User"
     }
   }

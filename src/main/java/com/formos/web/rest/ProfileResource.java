@@ -4,6 +4,8 @@ import com.formos.domain.Profile;
 import com.formos.repository.ProfileRepository;
 import com.formos.service.ProfileService;
 import com.formos.web.rest.errors.BadRequestAlertException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -48,7 +50,7 @@ public class ProfileResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/profiles")
-    public ResponseEntity<Profile> createProfile(@RequestBody Profile profile) throws URISyntaxException {
+    public ResponseEntity<Profile> createProfile(@Valid @RequestBody Profile profile) throws URISyntaxException {
         log.debug("REST request to save Profile : {}", profile);
         if (profile.getId() != null) {
             throw new BadRequestAlertException("A new profile cannot already have an ID", ENTITY_NAME, "idexists");
@@ -71,8 +73,10 @@ public class ProfileResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/profiles/{id}")
-    public ResponseEntity<Profile> updateProfile(@PathVariable(value = "id", required = false) final Long id, @RequestBody Profile profile)
-        throws URISyntaxException {
+    public ResponseEntity<Profile> updateProfile(
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody Profile profile
+    ) throws URISyntaxException {
         log.debug("REST request to update Profile : {}, {}", id, profile);
         if (profile.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -106,7 +110,7 @@ public class ProfileResource {
     @PatchMapping(value = "/profiles/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Profile> partialUpdateProfile(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody Profile profile
+        @NotNull @RequestBody Profile profile
     ) throws URISyntaxException {
         log.debug("REST request to partial update Profile partially : {}, {}", id, profile);
         if (profile.getId() == null) {

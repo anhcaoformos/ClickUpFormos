@@ -1,27 +1,40 @@
 import { IProfile, NewProfile } from './profile.model';
 
 export const sampleWithRequiredData: IProfile = {
-  id: 21514,
+  id: 2845,
+  name: 'Sedan vertical International',
+  username: 'Woman killer Hat',
+  password: 'Rhode Bentley',
+  apiKey: 'worship',
+  baseUrl: 'marginalise productivity Mountain',
 };
 
 export const sampleWithPartialData: IProfile = {
-  id: 8712,
-  name: 'International',
-  username: 'Woman killer Hat',
-  password: 'Rhode Bentley',
+  id: 24413,
+  name: 'Cyclocross Account',
+  username: 'Intranet barring Accounts',
+  password: 'Pickup Guilder Hybrid',
+  apiKey: 'joule who Cambridgeshire',
+  token: 'Cambodia male Research',
+  baseUrl: 'immense',
 };
 
 export const sampleWithFullData: IProfile = {
-  id: 1720,
-  name: 'quirk marginalise productivity',
-  username: 'nemo Buckinghamshire 1080p',
-  password: 'withdrawal',
-  apiKey: 'Bicycle',
-  token: 'barring Accounts',
-  baseUrl: 'Pickup Guilder Hybrid',
+  id: 14167,
+  name: 'Steel obediently',
+  username: 'seize matrix',
+  password: 'connecting earum hectare',
+  apiKey: 'Chips',
+  token: 'Borders',
+  baseUrl: 'whoa clear',
 };
 
 export const sampleWithNewData: NewProfile = {
+  name: 'Connecticut ea',
+  username: 'Gasoline er',
+  password: 'Chief',
+  apiKey: 'Leone Buckinghamshire odio',
+  baseUrl: 'qua freely Carolina',
   id: null,
 };
 

@@ -55,6 +55,18 @@
                 <span jhiTranslate="global.menu.entities.profile">Profile</span>
               </a>
             </li>
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/download-history"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                (click)="collapseNavbar()"
+              >
+                <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                <span jhiTranslate="global.menu.entities.downloadHistory">Download History</span>
+              </a>
+            </li>
             <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
           </ul>
         </li>

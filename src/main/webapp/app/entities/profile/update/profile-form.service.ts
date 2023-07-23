@@ -44,12 +44,22 @@ export class ProfileFormService {
           validators: [Validators.required],
         }
       ),
-      name: new FormControl(profileRawValue.name),
-      username: new FormControl(profileRawValue.username),
-      password: new FormControl(profileRawValue.password),
-      apiKey: new FormControl(profileRawValue.apiKey),
+      name: new FormControl(profileRawValue.name, {
+        validators: [Validators.required],
+      }),
+      username: new FormControl(profileRawValue.username, {
+        validators: [Validators.required],
+      }),
+      password: new FormControl(profileRawValue.password, {
+        validators: [Validators.required],
+      }),
+      apiKey: new FormControl(profileRawValue.apiKey, {
+        validators: [Validators.required],
+      }),
       token: new FormControl(profileRawValue.token),
-      baseUrl: new FormControl(profileRawValue.baseUrl),
+      baseUrl: new FormControl(profileRawValue.baseUrl, {
+        validators: [Validators.required],
+      }),
       user: new FormControl(profileRawValue.user),
     });
   }

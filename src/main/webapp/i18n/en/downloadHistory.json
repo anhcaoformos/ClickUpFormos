@@ -1,0 +1,26 @@
+{
+  "clickupApp": {
+    "downloadHistory": {
+      "home": {
+        "title": "Download Histories",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Download History",
+        "createOrEditLabel": "Create or edit a Download History",
+        "notFound": "No Download Histories found"
+      },
+      "created": "A new Download History is created with identifier {{ param }}",
+      "updated": "A Download History is updated with identifier {{ param }}",
+      "deleted": "A Download History is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Download History {{ id }}?"
+      },
+      "detail": {
+        "title": "Download History"
+      },
+      "id": "ID",
+      "taskId": "Task Id",
+      "historyId": "History Id",
+      "profile": "Profile"
+    }
+  }
+}

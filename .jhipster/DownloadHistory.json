@@ -1,0 +1,26 @@
+{
+  "applications": "*",
+  "changelogDate": "20230723030452",
+  "entityTableName": "download_history",
+  "fields": [
+    {
+      "fieldName": "taskId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "historyId",
+      "fieldType": "String"
+    }
+  ],
+  "name": "DownloadHistory",
+  "relationships": [
+    {
+      "otherEntityName": "profile",
+      "relationshipName": "profile",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}
