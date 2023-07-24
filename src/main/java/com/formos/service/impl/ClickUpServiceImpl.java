@@ -6,6 +6,8 @@ import com.formos.repository.ProfileRepository;
 import com.formos.service.ClickUpClientService;
 import com.formos.service.ClickUpService;
 import com.formos.service.dto.clickup.*;
+import com.formos.service.mapper.CommentMapper;
+import com.formos.service.mapper.TaskMapper;
 import com.formos.service.utils.FileUtils;
 import com.formos.web.rest.errors.BadRequestAlertException;
 import java.io.*;
@@ -34,15 +36,21 @@ public class ClickUpServiceImpl implements ClickUpService {
     private final ClickUpClientService clickUpClientService;
 
     private final ProfileRepository profileRepository;
+    private final TaskMapper taskMapper;
+    private final CommentMapper commentMapper;
 
     public ClickUpServiceImpl(
         SpringTemplateEngine templateEngine,
         ClickUpClientService clickUpClientService,
-        ProfileRepository profileRepository
+        ProfileRepository profileRepository,
+        TaskMapper taskMapper,
+        CommentMapper commentMapper
     ) {
         this.templateEngine = templateEngine;
         this.clickUpClientService = clickUpClientService;
         this.profileRepository = profileRepository;
+        this.taskMapper = taskMapper;
+        this.commentMapper = commentMapper;
     }
 
     @Override
@@ -75,7 +83,7 @@ public class ClickUpServiceImpl implements ClickUpService {
         } while (tryTime == 1 && Objects.isNull(taskData));
 
         //        TaskDTO taskDTO = new TaskDTO(task);
-        TaskDTO taskDTO = new TaskDTO(taskData);
+        TaskDTO taskDTO = taskMapper.toTaskDTO(profile, taskData);
 
         String historyEndpoint = profile.getBaseUrl() + Constants.TASK_ENDPOINT + taskId + "/history";
         HistoryData historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader);
@@ -88,25 +96,24 @@ public class ClickUpServiceImpl implements ClickUpService {
         for (History history : historyComments) {
             TaskComments.Comment comment = history.comment;
             if (Objects.isNull(map.get(comment.id))) {
-                map.put(comment.id, new CommentDTO(taskId, comment));
+                map.put(comment.id, commentMapper.toCommentDTO(taskId, comment));
             }
         }
 
         TaskComments taskComments = clickUpClientService.getRequest(taskCommentsEndPoint, null, authorization, TaskComments.class);
         List<CommentDTO> commentDTOs = taskComments.comments
             .stream()
-            .map(comment -> clickUpClientService.processAddHistory(taskId, map, comment))
+            .map(comment -> commentMapper.processAddHistory(taskId, map, comment))
             .collect(Collectors.toList());
         Collections.reverse(commentDTOs);
 
         for (CommentDTO comment : commentDTOs) {
-            List<CommentDTO> children = clickUpClientService.getChildrenComments(
-                taskId,
-                map,
-                comment,
-                profile.getBaseUrl() + Constants.REPLY_ENDPOINT,
-                tokenHeader
-            );
+            List<CommentDTO> children = clickUpClientService
+                .getChildrenComments(taskId, map, comment, profile.getBaseUrl() + Constants.REPLY_ENDPOINT, tokenHeader)
+                .comments.stream()
+                .map(commentChild -> commentMapper.processAddHistory(taskId, map, commentChild))
+                .collect(Collectors.toList());
+            Collections.reverse(children);
             Set<AttachmentDTO> attachmentDTOS = children
                 .stream()
                 .flatMap(child ->

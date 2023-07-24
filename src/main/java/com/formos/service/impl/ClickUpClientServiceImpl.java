@@ -1,11 +1,11 @@
 package com.formos.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.formos.config.Constants;
+import com.formos.domain.Profile;
 import com.formos.service.ClickUpClientService;
-import com.formos.service.dto.clickup.CommentDTO;
-import com.formos.service.dto.clickup.HistoryData;
-import com.formos.service.dto.clickup.TaskComments;
-import com.formos.service.dto.clickup.TaskData;
+import com.formos.service.dto.clickup.*;
+import com.formos.service.mapper.CommentMapper;
 import com.nimbusds.jose.shaded.gson.Gson;
 import java.io.IOException;
 import java.net.URI;
@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClickUpClientServiceImpl implements ClickUpClientService {
 
-    public List<CommentDTO> getChildrenComments(
+    public TaskComments getChildrenComments(
         String taskId,
         Map<String, CommentDTO> map,
         CommentDTO comment,
@@ -42,13 +43,7 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         parameters.add(new BasicNameValuePair("parent", comment.getId()));
         parameters.add(new BasicNameValuePair("type", "2"));
         parameters.add(new BasicNameValuePair("loadAllPages", "false"));
-        TaskComments taskComments = getRequest(childrenCommentEndpoint, parameters, token, TaskComments.class);
-        List<CommentDTO> commentDTOs = taskComments.comments
-            .stream()
-            .map(commentChild -> processAddHistory(taskId, map, commentChild))
-            .collect(Collectors.toList());
-        Collections.reverse(commentDTOs);
-        return commentDTOs;
+        return getRequest(childrenCommentEndpoint, parameters, token, TaskComments.class);
     }
 
     public <T> T getRequest(String endpoint, List<NameValuePair> parameters, Header header, Class<T> valueType) throws URISyntaxException {
@@ -216,12 +211,18 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         return getRequest(taskEnpoint, parameters, token, TaskData.class);
     }
 
-    public CommentDTO processAddHistory(String taskId, Map<String, CommentDTO> map, TaskComments.Comment comment) {
-        CommentDTO commentDTO = new CommentDTO(taskId, comment);
-        CommentDTO commentHistory = map.get(commentDTO.getId());
-        if (Objects.nonNull(commentHistory)) {
-            commentDTO.addHistory(commentHistory);
+    public String getTaskTitle(Profile profile, String taskId) {
+        if (Objects.isNull(profile)) {
+            return "";
         }
-        return commentDTO;
+        String taskApiEndPoint = Constants.TASK_API_ENDPOINT + taskId;
+        Header authorization = new BasicHeader("Authorization", profile.getApiKey());
+        try {
+            Task task = getRequest(taskApiEndPoint, null, authorization, Task.class);
+            return task.name + " | " + task.status.color;
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }

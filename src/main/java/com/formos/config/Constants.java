@@ -40,6 +40,7 @@ public final class Constants {
 
     public static final String TASK_API_ENDPOINT = "https://api.clickup.com/api/v2/task/";
     public static final String LOGIN_ENDPOINT = "https://app.clickup.com/auth/v1/login";
+    public static final String TASK_URL_PREFIX = "https://app.clickup.com/t/";
 
     /**
      * Constants endpoint for Production

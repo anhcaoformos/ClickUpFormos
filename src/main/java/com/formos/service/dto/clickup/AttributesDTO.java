@@ -15,6 +15,7 @@ public class AttributesDTO {
     private Integer header;
     private Boolean strike;
     private String list;
+    private String link;
     private String color_class;
     private String align;
     private Integer indent;
@@ -40,6 +41,7 @@ public class AttributesDTO {
             this.strike = CommonUtils.getOrDefault(attributes.strike, null);
             this.list = Objects.nonNull(attributes.list) ? attributes.list.list : null;
             this.color_class = CommonUtils.getOrDefault(attributes.color_class, null);
+            this.link = CommonUtils.getOrDefault(attributes.link, null);
             this.align = CommonUtils.getOrDefault(attributes.align, null);
             this.indent = CommonUtils.getOrDefault(attributes.indent, null);
             this.code = CommonUtils.getOrDefault(attributes.code, null);
@@ -134,6 +136,14 @@ public class AttributesDTO {
 
     public void setList(String list) {
         this.list = list;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public String getColor_class() {

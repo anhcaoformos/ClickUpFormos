@@ -21,6 +21,7 @@ public class TaskComments {
         public Integer header;
         public Boolean strike;
         public List list;
+        public String link;
 
         @JsonProperty("color-class")
         public String color_class;

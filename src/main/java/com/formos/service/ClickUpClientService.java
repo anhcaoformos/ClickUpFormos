@@ -1,6 +1,7 @@
 package com.formos.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.formos.domain.Profile;
 import com.formos.service.dto.clickup.CommentDTO;
 import com.formos.service.dto.clickup.HistoryData;
 import com.formos.service.dto.clickup.TaskComments;
@@ -14,7 +15,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 
 public interface ClickUpClientService {
-    List<CommentDTO> getChildrenComments(
+    TaskComments getChildrenComments(
         String taskId,
         Map<String, CommentDTO> map,
         CommentDTO comment,
@@ -30,5 +31,5 @@ public interface ClickUpClientService {
 
     TaskData getTask(String taskEnpoint, Header token) throws URISyntaxException;
 
-    CommentDTO processAddHistory(String taskId, Map<String, CommentDTO> map, TaskComments.Comment comment);
+    String getTaskTitle(Profile profile, String taskId);
 }

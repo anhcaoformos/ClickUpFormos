@@ -18,20 +18,22 @@ public class TaskDTO {
     private Set<AttachmentDTO> attachments;
     private String baseImagePath;
 
-    public TaskDTO(TaskData task) {
-        this.id = task.id;
-        this.name = task.name;
-        this.status = Objects.nonNull(task.status) ? task.status.status.toUpperCase() : null;
-        this.statusColor = Objects.nonNull(task.status) ? task.status.color : null;
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            TaskContentData contentData = objectMapper.readValue(task.content, TaskContentData.class);
-            this.description = new CommentDTO(contentData).buildHtml(task.id);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        this.attachments = task.attachments.stream().map(AttachmentDTO::new).collect(Collectors.toSet());
-    }
+    public TaskDTO() {}
+
+    //    public TaskDTO(TaskData task) {
+    //        this.id = task.id;
+    //        this.name = task.name;
+    //        this.status = Objects.nonNull(task.status) ? task.status.status.toUpperCase() : null;
+    //        this.statusColor = Objects.nonNull(task.status) ? task.status.color : null;
+    //        ObjectMapper objectMapper = new ObjectMapper();
+    //        try {
+    //            TaskContentData contentData = objectMapper.readValue(task.content, TaskContentData.class);
+    //            this.description = new CommentDTO(contentData).buildHtml(task.id);
+    //        } catch (JsonProcessingException e) {
+    //            e.printStackTrace();
+    //        }
+    //        this.attachments = task.attachments.stream().map(AttachmentDTO::new).collect(Collectors.toSet());
+    //    }
 
     public TaskDTO(Task task) {
         this.id = task.id;

@@ -19,6 +19,8 @@ public class ContentItemDTO {
     private String extension;
     private String userMention;
 
+    public ContentItemDTO() {}
+
     public ContentItemDTO(TaskComments.CommentItem commentItem) {
         this.text = commentItem.text;
         this.type = commentItem.type;
@@ -34,56 +36,63 @@ public class ContentItemDTO {
         }
     }
 
-    public ContentItemDTO(TaskContentItemData taskContentItemData) {
-        this.attributes = new AttributesDTO(taskContentItemData.attributes);
-        if (taskContentItemData.content instanceof String) {
-            this.text = taskContentItemData.content.toString();
-        } else if (taskContentItemData.content instanceof HashMap) {
-            Gson gson = new Gson();
-            JsonObject content = gson.toJsonTree(taskContentItemData.content).getAsJsonObject();
-            if (content.has("attachment")) {
-                JsonObject attachment = content.get("attachment").getAsJsonObject();
-
-                this.text = CommonUtils.getStringPropertyOfJsonObject(attachment, "name");
-                this.attachmentId = CommonUtils.getStringPropertyOfJsonObject(attachment, "id");
-                this.url = CommonUtils.getStringPropertyOfJsonObject(attachment, "url");
-                this.extension = CommonUtils.getStringPropertyOfJsonObject(attachment, "extension");
-                this.isImage = Constants.IMAGE_EXTENSION.contains(this.extension);
-                this.type = "attachment";
-            }
-
-            if (content.has("emoticon")) {
-                this.emoticonCode = CommonUtils.getStringPropertyOfJsonObject(content.get("emoticon").getAsJsonObject(), "code");
-                if (Objects.nonNull(this.emoticonCode)) {
-                    this.text = "&#" + Integer.parseInt(this.emoticonCode, 16);
-                }
-                this.type = "emoticon";
-            }
-
-            if (content.has("user_mention")) {
-                JsonObject userMention = content.get("user_mention").getAsJsonObject();
-                this.text = "@" + CommonUtils.getStringPropertyOfJsonObject(userMention, "name");
-                this.type = "userMention";
-            }
-
-            if (content.has("image")) {
-                this.text = CommonUtils.getStringPropertyOfJsonObject(content, "image");
-                this.attachmentId = this.attributes.getDataId();
-                this.type = "taskImage";
-            }
-
-            if (content.has("table-col")) {
-                JsonObject tableCol = content.get("table-col").getAsJsonObject();
-                this.text = CommonUtils.getStringPropertyOfJsonObject(tableCol, "width");
-                this.type = "tableCol";
-            }
-
-            if (content.has("divider")) {
-                this.type = "divider";
-            }
-        }
-    }
-
+    //    public ContentItemDTO(TaskContentItemData taskContentItemData) {
+    //        this.attributes = new AttributesDTO(taskContentItemData.attributes);
+    //        if (taskContentItemData.content instanceof String) {
+    //            this.text = taskContentItemData.content.toString();
+    //        } else if (taskContentItemData.content instanceof HashMap) {
+    //            Gson gson = new Gson();
+    //            JsonObject content = gson.toJsonTree(taskContentItemData.content).getAsJsonObject();
+    //            if (content.has("attachment")) {
+    //                JsonObject attachment = content.get("attachment").getAsJsonObject();
+    //
+    //                this.text = CommonUtils.getStringPropertyOfJsonObject(attachment, "name");
+    //                this.attachmentId = CommonUtils.getStringPropertyOfJsonObject(attachment,"id");
+    //                this.url = CommonUtils.getStringPropertyOfJsonObject(attachment,"url");
+    //                this.extension = CommonUtils.getStringPropertyOfJsonObject(attachment,"extension");
+    //                this.isImage = Constants.IMAGE_EXTENSION.contains(this.extension);
+    //                this.type = "attachment";
+    //            }
+    //
+    //            if (content.has("emoticon")) {
+    //                this.emoticonCode = CommonUtils.getStringPropertyOfJsonObject(content.get("emoticon").getAsJsonObject(),"code");
+    //                if (Objects.nonNull(this.emoticonCode)) {
+    //                    this.text = "&#" + Integer.parseInt(this.emoticonCode, 16);
+    //                }
+    //                this.type = "emoticon";
+    //            }
+    //
+    //            if (content.has("user_mention")) {
+    //                JsonObject userMention = content.get("user_mention").getAsJsonObject();
+    //                this.text = "@" + CommonUtils.getStringPropertyOfJsonObject(userMention, "name");
+    //                this.type = "userMention";
+    //            }
+    //
+    //            if (content.has("image")) {
+    //                this.text = CommonUtils.getStringPropertyOfJsonObject(content, "image");
+    //                this.attachmentId = this.attributes.getDataId();
+    //                this.type = "taskImage";
+    //            }
+    //
+    //            if (content.has("table-col")) {
+    //                JsonObject tableCol = content.get("table-col").getAsJsonObject();
+    //                this.text = CommonUtils.getStringPropertyOfJsonObject(tableCol, "width");
+    //                this.type = "tableCol";
+    //            }
+    //
+    //            if (content.has("task_mention")) {
+    //                JsonObject taskMention = content.get("task_mention").getAsJsonObject();
+    //                String taskId = CommonUtils.getStringPropertyOfJsonObject(taskMention, "task_id");
+    //                this.url = Constants.TASK_URL_PREFIX + taskId;
+    //                this.text = ClickUpCall.getTaskTitle(taskId);
+    //                this.type = "taskMention";
+    //            }
+    //
+    //            if (content.has("divider")) {
+    //                this.type = "divider";
+    //            }
+    //        }
+    //    }
     public String getText() {
         return text;
     }
