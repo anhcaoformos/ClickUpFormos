@@ -25,7 +25,8 @@
       "token": "Token",
       "baseUrl": "Base Url",
       "downloadHistory": "Download History",
-      "user": "User"
+      "user": "User",
+      "tasks": "Tasks"
     }
   }
 }

@@ -7,13 +7,19 @@ import com.formos.service.ClickUpService;
 import com.formos.service.ProfileService;
 import com.formos.service.UserService;
 import com.formos.web.rest.errors.BadRequestAlertException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -189,9 +195,20 @@ public class ProfileResource {
         return profileService.findAllByCurrentUser();
     }
 
-    @GetMapping("/profiles/export")
-    public void exportClickUp() throws Exception {
-        String taskId = "863g42arv";
-        clickUpService.exportPdfForTask(1L, taskId);
+    @PostMapping("/profiles/{id}/generate-tasks")
+    public ResponseEntity<byte[]> exportClickUp(@PathVariable Long id, @RequestBody List<String> taskIds, HttpServletResponse response)
+        throws Exception {
+        //        String header = String.format("attachment; filename=\"FRP_MDE_Reports_%s.txt\"", (new Date()).getTime());
+        //        String taskId = "863g42arv";
+        //        response.setHeader("Content-Disposition", header);
+        //        byte[] data = "abc".getBytes(StandardCharsets.UTF_8);
+        //        response.setContentType("text/plain");
+        //        response.setContentLength(data.length);
+        //        response.setStatus(HttpServletResponse.SC_OK);
+        //        OutputStream outputStream = response.getOutputStream();
+        //        IOUtils.copy(new ByteArrayInputStream(data), outputStream);
+        //        outputStream.flush();
+        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=a.txt").body("abc".getBytes(StandardCharsets.UTF_8));
+        //        clickUpService.exportPdfForTask(1L, taskId);
     }
 }

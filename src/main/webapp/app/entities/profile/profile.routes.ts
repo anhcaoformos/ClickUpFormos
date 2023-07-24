@@ -6,6 +6,7 @@ import { ProfileDetailComponent } from './detail/profile-detail.component';
 import { ProfileUpdateComponent } from './update/profile-update.component';
 import ProfileResolve from './route/profile-routing-resolve.service';
 import { ASC } from 'app/config/navigation.constants';
+import { ProfileGenerateTasksComponent } from './generate-tasks/profile-generate-tasks.component';
 
 const profileRoute: Routes = [
   {
@@ -35,6 +36,14 @@ const profileRoute: Routes = [
   {
     path: ':id/edit',
     component: ProfileUpdateComponent,
+    resolve: {
+      profile: ProfileResolve,
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: ':id/generate-tasks',
+    component: ProfileGenerateTasksComponent,
     resolve: {
       profile: ProfileResolve,
     },

@@ -100,7 +100,8 @@
       "open": "Open",
       "save": "Save",
       "view": "View",
-      "showDownloadHistory": "Show Download History",
+      "downloadHistories": "Download Histories",
+      "generateTasks": "Generate Tasks",
       "show": "Show {{otherEntity}}"
     },
     "detail": {

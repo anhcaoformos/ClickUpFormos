@@ -1,0 +1,59 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="profile">
+      <h2 data-cy="profileDetailsHeading"><span jhiTranslate="clickupApp.profile.detail.title">Profile</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="clickupApp.profile.name">Name</span></dt>
+        <dd>
+          <span>{{ profile.name }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.username">Username</span></dt>
+        <dd>
+          <span>{{ profile.username }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.password">Password</span></dt>
+        <dd>
+          <span>{{ profile.password }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.apiKey">Api Key</span></dt>
+        <dd>
+          <span>{{ profile.apiKey }}</span>
+        </dd>
+        <dt><span jhiTranslate="clickupApp.profile.baseUrl">Base Url</span></dt>
+        <dd>
+          <span>{{ profile.baseUrl }}</span>
+        </dd>
+      </dl>
+
+      <form name="generateTasksForm" role="form" novalidate [formGroup]="generateTasksForm">
+        <div class="mb-3">
+          <label class="form-label" jhiTranslate="clickupApp.profile.tasks" for="field_tasks">Tasks</label>
+          <textarea class="form-control" name="tasks" id="field_tasks" formControlName="tasks"></textarea>
+          <div *ngIf="generateTasksForm.controls.tasks.status === 'INVALID' && generateTasksForm.controls.tasks.touched">
+            <small
+              class="form-text text-danger"
+              *ngIf="generateTasksForm.controls.tasks?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+      </form>
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" (click)="generateTasks()" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.generateTasks">Generate Tasks</span>
+      </button>
+    </div>
+  </div>
+</div>

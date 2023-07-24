@@ -43,6 +43,12 @@ export class ProfileService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
+  generateTasks(profile: IProfile, tasks: string[]): Observable<any> {
+    return this.http.post<string[]>(`${this.resourceUrl}/${this.getProfileIdentifier(profile)}/generate-tasks`, tasks, {
+      observe: 'response',
+    });
+  }
+
   getProfileIdentifier(profile: Pick<IProfile, 'id'>): number {
     return profile.id;
   }
