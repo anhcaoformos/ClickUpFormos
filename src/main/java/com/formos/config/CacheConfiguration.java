@@ -51,6 +51,8 @@ public class CacheConfiguration {
             createCache(cm, com.formos.domain.Profile.class.getName());
             createCache(cm, com.formos.domain.DownloadHistory.class.getName());
             createCache(cm, com.formos.domain.Profile.class.getName() + ".downloadHistories");
+            createCache(cm, com.formos.domain.DownloadHistory.class.getName() + ".files");
+            createCache(cm, com.formos.domain.File.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

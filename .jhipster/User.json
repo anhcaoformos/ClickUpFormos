@@ -1,6 +1,6 @@
 {
   "applications": "*",
-  "changelogDate": "20230723030454",
+  "changelogDate": "20230724144103",
   "entityTableName": "user",
   "fields": [],
   "name": "User",

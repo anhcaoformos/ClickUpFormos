@@ -11,10 +11,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -196,19 +200,22 @@ public class ProfileResource {
     }
 
     @PostMapping("/profiles/{id}/generate-tasks")
-    public ResponseEntity<byte[]> exportClickUp(@PathVariable Long id, @RequestBody List<String> taskIds, HttpServletResponse response)
-        throws Exception {
-        //        String header = String.format("attachment; filename=\"FRP_MDE_Reports_%s.txt\"", (new Date()).getTime());
-        //        String taskId = "863g42arv";
-        //        response.setHeader("Content-Disposition", header);
-        //        byte[] data = "abc".getBytes(StandardCharsets.UTF_8);
-        //        response.setContentType("text/plain");
-        //        response.setContentLength(data.length);
-        //        response.setStatus(HttpServletResponse.SC_OK);
-        //        OutputStream outputStream = response.getOutputStream();
-        //        IOUtils.copy(new ByteArrayInputStream(data), outputStream);
-        //        outputStream.flush();
-        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=a.txt").body("abc".getBytes(StandardCharsets.UTF_8));
+    public void exportClickUp(@PathVariable Long id, @RequestBody List<String> taskIds, HttpServletResponse response) throws Exception {
+        String header = String.format("attachment; filename=\"FRP_MDE_Reports_%s.txt\"", (new Date()).getTime());
+        String taskId = "863g42arv";
+        response.setHeader("Content-Disposition", header);
+        byte[] data = Files.readAllBytes(Paths.get("D:\\cnanh\\clickup\\src\\main\\resources\\abc.txt"));
+        response.setContentType("text/plain");
+        response.setContentLength(data.length);
+        response.setStatus(HttpServletResponse.SC_OK);
+        OutputStream outputStream = response.getOutputStream();
+        IOUtils.copy(new ByteArrayInputStream(data), outputStream);
+        outputStream.flush();
+        //        return ResponseEntity
+        //            .noContent()
+        //            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+        //            .build();
+        //        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=a.txt").body(Files.readAllBytes(Paths.get("D:\\cnanh\\clickup\\src\\main\\resources\\abc.txt")));
         //        clickUpService.exportPdfForTask(1L, taskId);
     }
 }

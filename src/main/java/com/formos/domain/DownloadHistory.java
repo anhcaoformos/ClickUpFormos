@@ -3,6 +3,8 @@ package com.formos.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -27,6 +29,11 @@ public class DownloadHistory implements Serializable {
 
     @Column(name = "history_id")
     private String historyId;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "downloadHistory")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "downloadHistory" }, allowSetters = true)
+    private Set<File> files = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "downloadHistories", "user" }, allowSetters = true)
@@ -71,6 +78,37 @@ public class DownloadHistory implements Serializable {
 
     public void setHistoryId(String historyId) {
         this.historyId = historyId;
+    }
+
+    public Set<File> getFiles() {
+        return this.files;
+    }
+
+    public void setFiles(Set<File> files) {
+        if (this.files != null) {
+            this.files.forEach(i -> i.setDownloadHistory(null));
+        }
+        if (files != null) {
+            files.forEach(i -> i.setDownloadHistory(this));
+        }
+        this.files = files;
+    }
+
+    public DownloadHistory files(Set<File> files) {
+        this.setFiles(files);
+        return this;
+    }
+
+    public DownloadHistory addFile(File file) {
+        this.files.add(file);
+        file.setDownloadHistory(this);
+        return this;
+    }
+
+    public DownloadHistory removeFile(File file) {
+        this.files.remove(file);
+        file.setDownloadHistory(null);
+        return this;
     }
 
     public Profile getProfile() {

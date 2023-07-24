@@ -9,7 +9,6 @@ import { DownloadHistoryService } from '../service/download-history.service';
 
 export const downloadHistoryResolve = (route: ActivatedRouteSnapshot): Observable<null | IDownloadHistory> => {
   const id = route.params['id'];
-  const profileId = route.params['profileId'];
   if (id) {
     return inject(DownloadHistoryService)
       .find(id)

@@ -52,7 +52,7 @@ public class Profile implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "profile" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "files", "profile" }, allowSetters = true)
     private Set<DownloadHistory> downloadHistories = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

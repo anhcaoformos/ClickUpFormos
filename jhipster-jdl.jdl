@@ -9,7 +9,11 @@ entity Profile {
 
 }
 entity User {}
-
+entity File {
+    name String
+    fileOnServer String
+    relativePath String
+}
 entity DownloadHistory {
     taskId String
     historyId String
@@ -23,6 +27,9 @@ relationship OneToMany {
     Profile to DownloadHistory { profile }
 }
 
+relationship OneToMany {
+    DownloadHistory to File { downloadHistory }
+}
 // Use Data Transfer Objects (DTO)
 // dto * with mapstruct
 

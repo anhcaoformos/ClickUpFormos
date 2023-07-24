@@ -1,6 +1,6 @@
 {
   "applications": "*",
-  "changelogDate": "20230723030452",
+  "changelogDate": "20230724144100",
   "entityTableName": "download_history",
   "fields": [
     {
@@ -14,6 +14,13 @@
   ],
   "name": "DownloadHistory",
   "relationships": [
+    {
+      "otherEntityName": "file",
+      "otherEntityRelationshipName": "downloadHistory",
+      "relationshipName": "file",
+      "relationshipSide": "left",
+      "relationshipType": "one-to-many"
+    },
     {
       "otherEntityName": "profile",
       "relationshipName": "profile",

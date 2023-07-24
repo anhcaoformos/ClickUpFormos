@@ -8,6 +8,7 @@ import { FormGroup, FormControl, Validators, ReactiveFormsModule, FormsModule } 
 
 import { ProfileFormGroup } from '../update/profile-form.service';
 import { ProfileService } from '../service/profile.service';
+import { saveAs } from 'file-saver';
 
 @Component({
   standalone: true,
@@ -33,10 +34,9 @@ export class ProfileGenerateTasksComponent {
       for (let index = 0; index < tasks.length; index++) {
         tasks[index] = tasks[index].trim();
       }
-      console.log(this.generateTasksForm);
-      console.log(tasks);
       this.profileService.generateTasks(this.profile, tasks).subscribe(data => {
-        console.log(data);
+        const blob = new Blob([data.body], { type: 'text/plain;charset=utf-8' });
+        saveAs(blob, 'test.txt');
       });
     }
   }

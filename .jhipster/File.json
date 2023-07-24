@@ -1,0 +1,30 @@
+{
+  "applications": "*",
+  "changelogDate": "20230724144101",
+  "entityTableName": "file",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fileOnServer",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "relativePath",
+      "fieldType": "String"
+    }
+  ],
+  "name": "File",
+  "relationships": [
+    {
+      "otherEntityName": "downloadHistory",
+      "relationshipName": "downloadHistory",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

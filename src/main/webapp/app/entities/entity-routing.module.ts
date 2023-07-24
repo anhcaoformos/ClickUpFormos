@@ -14,6 +14,11 @@ import { RouterModule } from '@angular/router';
         data: { pageTitle: 'clickupApp.downloadHistory.home.title' },
         loadChildren: () => import('./download-history/download-history.routes'),
       },
+      {
+        path: 'file',
+        data: { pageTitle: 'clickupApp.file.home.title' },
+        loadChildren: () => import('./file/file.routes'),
+      },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
     ]),
   ],

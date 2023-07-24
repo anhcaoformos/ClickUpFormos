@@ -16,10 +16,17 @@
     <include file="config/liquibase/changelog/20230723030452_added_entity_DownloadHistory.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230723030453_added_entity_Profile.xml" relativeToChangelogFile="false"/>
 <!--    <include file="config/liquibase/changelog/20230723030454_added_entity_User.xml" relativeToChangelogFile="false"/>-->
+<!--    <include file="config/liquibase/changelog/20230724144100_added_entity_DownloadHistory.xml" relativeToChangelogFile="false"/>-->
+    <include file="config/liquibase/changelog/20230724144101_added_entity_File.xml" relativeToChangelogFile="false"/>
+<!--    <include file="config/liquibase/changelog/20230724144102_added_entity_Profile.xml" relativeToChangelogFile="false"/>-->
+<!--    <include file="config/liquibase/changelog/20230724144103_added_entity_User.xml" relativeToChangelogFile="false"/>-->
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
 <!--    <include file="config/liquibase/changelog/20230722112703_added_entity_constraints_Profile.xml" relativeToChangelogFile="false"/>-->
     <include file="config/liquibase/changelog/20230723030452_added_entity_constraints_DownloadHistory.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230723030453_added_entity_constraints_Profile.xml" relativeToChangelogFile="false"/>
+<!--    <include file="config/liquibase/changelog/20230724144100_added_entity_constraints_DownloadHistory.xml" relativeToChangelogFile="false"/>-->
+    <include file="config/liquibase/changelog/20230724144101_added_entity_constraints_File.xml" relativeToChangelogFile="false"/>
+<!--    <include file="config/liquibase/changelog/20230724144102_added_entity_constraints_Profile.xml" relativeToChangelogFile="false"/>-->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

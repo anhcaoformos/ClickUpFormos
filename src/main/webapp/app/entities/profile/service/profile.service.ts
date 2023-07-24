@@ -43,9 +43,10 @@ export class ProfileService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  generateTasks(profile: IProfile, tasks: string[]): Observable<any> {
-    return this.http.post<string[]>(`${this.resourceUrl}/${this.getProfileIdentifier(profile)}/generate-tasks`, tasks, {
+  generateTasks(profile: IProfile, tasks: string[]): Observable<HttpResponse<any>> {
+    return this.http.post<any>(`${this.resourceUrl}/${this.getProfileIdentifier(profile)}/generate-tasks`, tasks, {
       observe: 'response',
+      responseType: 'blob' as 'json',
     });
   }
 
