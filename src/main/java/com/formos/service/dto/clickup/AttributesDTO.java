@@ -27,6 +27,7 @@ public class AttributesDTO {
     private Boolean isMultiple;
     private String dataId;
     private String tableColWidth;
+    private String tableCellLineRow;
     private String tableCellLineRowspan;
     private String tableCellLineColspan;
     private String tableCellLineCell;
@@ -53,6 +54,7 @@ public class AttributesDTO {
             this.dataId = CommonUtils.getOrDefault(attributes.dataId, null);
             this.tableColWidth = Objects.nonNull(attributes.tableCol) ? attributes.tableCol.width : null;
             if (Objects.nonNull(attributes.tableCellLine)) {
+                this.tableCellLineRow = attributes.tableCellLine.row;
                 this.tableCellLineRowspan = attributes.tableCellLine.rowspan;
                 this.tableCellLineColspan = attributes.tableCellLine.colspan;
                 this.tableCellLineCell = attributes.tableCellLine.cell;
@@ -64,7 +66,7 @@ public class AttributesDTO {
                     .map(cssAttribute -> getTargetFieldValue(attributes, cssAttribute))
                     .filter(Objects::nonNull)
                     .count() +
-                (!"ordered".equals(this.list) ? 1 : 0) >
+                (Objects.nonNull(this.list) && !"ordered".equals(this.list) ? 1 : 0) >
                 1;
             this.isEmpty =
                 Constants.CSS_ATTRIBUTES
@@ -258,6 +260,14 @@ public class AttributesDTO {
 
     public void setTableCellLineCell(String tableCellLineCell) {
         this.tableCellLineCell = tableCellLineCell;
+    }
+
+    public String getTableCellLineRow() {
+        return tableCellLineRow;
+    }
+
+    public void setTableCellLineRow(String tableCellLineRow) {
+        this.tableCellLineRow = tableCellLineRow;
     }
 
     private Object getFieldValue(Field field, Object target) {

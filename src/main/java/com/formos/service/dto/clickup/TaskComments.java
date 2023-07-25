@@ -55,6 +55,8 @@ public class TaskComments {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TableCellLine {
 
+        public String row;
+
         @JsonProperty("rowspan")
         public String rowspan;
 

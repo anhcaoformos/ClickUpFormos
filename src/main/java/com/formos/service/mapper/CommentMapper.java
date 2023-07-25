@@ -101,14 +101,6 @@ public class CommentMapper {
                             blockBuilder = new StringBuilder();
                             orderedBuilder = appendEndOfOrderedList(htmlBuilder, blockBuilder, orderedBuilder);
                             blockBuilder = new StringBuilder();
-                        } else {
-                            String block = blockBuilder.toString();
-                            blockBuilder = new StringBuilder();
-                            blockBuilder.append("<div>");
-                            applyAttributes(blockBuilder, block, attributes);
-                            blockBuilder.append("</div>");
-                            htmlBuilder.append(blockBuilder);
-                            blockBuilder = new StringBuilder();
                         }
                     } else {
                         if (
@@ -255,8 +247,8 @@ public class CommentMapper {
             Objects.nonNull(previousBlockItem.getAttributes()) &&
             Objects.nonNull(previousBlockItem.getAttributes().getTableCellLineCell())
         ) {
-            String indexNextRow = previousBlockItem.getAttributes().getTableCellLineCell().split("-")[0];
-            String indexCurrentRow = attributes.getTableCellLineCell().split("-")[0];
+            String indexNextRow = previousBlockItem.getAttributes().getTableCellLineRow();
+            String indexCurrentRow = attributes.getTableCellLineRow();
             if (!indexCurrentRow.equals(indexNextRow)) {
                 rowBuilder.append("</tr>");
                 appendRow(rowBuilder);

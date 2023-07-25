@@ -25,7 +25,6 @@ public final class Constants {
             "underline",
             "header",
             "strike",
-            "list",
             "color_class",
             "align",
             "indent",
