@@ -127,3 +127,5 @@ jhipster:
 # ===================================================================
 
 # application:
+clickup:
+  base-folder: docdb

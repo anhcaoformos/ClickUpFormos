@@ -63,13 +63,15 @@ public class AttributesDTO {
                     .stream()
                     .map(cssAttribute -> getTargetFieldValue(attributes, cssAttribute))
                     .filter(Objects::nonNull)
-                    .count() >
+                    .count() +
+                (!"ordered".equals(this.list) ? 1 : 0) >
                 1;
             this.isEmpty =
                 Constants.CSS_ATTRIBUTES
                     .stream()
                     .map(cssAttribute -> getTargetFieldValue(attributes, cssAttribute))
-                    .allMatch(Objects::isNull);
+                    .allMatch(Objects::isNull) &&
+                Objects.isNull(this.list);
         }
     }
 

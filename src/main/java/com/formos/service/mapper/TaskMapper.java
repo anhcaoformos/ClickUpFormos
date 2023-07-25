@@ -27,7 +27,7 @@ public class TaskMapper {
         return taskDTO;
     }
 
-    public TaskDTO toTaskDTO(Profile profile, TaskData task) {
+    public TaskDTO toTaskDTO(Profile profile, TaskData task, TaskHistory taskHistory) {
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setId(task.getId());
         taskDTO.setName(task.getName());
@@ -36,7 +36,7 @@ public class TaskMapper {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             TaskContentData contentData = objectMapper.readValue(task.getContent(), TaskContentData.class);
-            taskDTO.setDescription(commentMapper.buildHtml(profile, task.getId(), contentData));
+            taskDTO.setDescription(commentMapper.buildHtml(profile, taskHistory, contentData));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

@@ -6,6 +6,7 @@ import com.formos.repository.ProfileRepository;
 import com.formos.service.ClickUpService;
 import com.formos.service.ProfileService;
 import com.formos.service.UserService;
+import com.formos.service.utils.FileUtils;
 import com.formos.web.rest.errors.BadRequestAlertException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -201,21 +202,22 @@ public class ProfileResource {
 
     @PostMapping("/profiles/{id}/generate-tasks")
     public void exportClickUp(@PathVariable Long id, @RequestBody List<String> taskIds, HttpServletResponse response) throws Exception {
-        String header = String.format("attachment; filename=\"FRP_MDE_Reports_%s.txt\"", (new Date()).getTime());
-        String taskId = "863g42arv";
-        response.setHeader("Content-Disposition", header);
-        byte[] data = Files.readAllBytes(Paths.get("D:\\cnanh\\clickup\\src\\main\\resources\\abc.txt"));
-        response.setContentType("text/plain");
-        response.setContentLength(data.length);
-        response.setStatus(HttpServletResponse.SC_OK);
-        OutputStream outputStream = response.getOutputStream();
-        IOUtils.copy(new ByteArrayInputStream(data), outputStream);
-        outputStream.flush();
+        //        String header = String.format("attachment; filename=\"FRP_MDE_Reports_%s.txt\"", (new Date()).getTime());
+        //        String taskId = "863g42arv";
+        //        response.setHeader("Content-Disposition", header);
+        //        byte[] data = Files.readAllBytes(Paths.get("D:\\cnanh\\clickup\\src\\main\\resources\\abc.txt"));
+        //        response.setContentType("text/plain");
+        //        response.setContentLength(data.length);
+        //        response.setStatus(HttpServletResponse.SC_OK);
+        //        OutputStream outputStream = response.getOutputStream();
+        //        IOUtils.copy(new ByteArrayInputStream(data), outputStream);
+        //        outputStream.flush();
+        //        System.out.println(FileUtils.getRelativePath("docdb", null));
         //        return ResponseEntity
         //            .noContent()
         //            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
         //            .build();
         //        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=a.txt").body(Files.readAllBytes(Paths.get("D:\\cnanh\\clickup\\src\\main\\resources\\abc.txt")));
-        //        clickUpService.exportPdfForTask(1L, taskId);
+        clickUpService.exportPdfForTasks(id, taskIds);
     }
 }

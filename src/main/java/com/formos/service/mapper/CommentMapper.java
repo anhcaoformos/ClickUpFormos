@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,29 +18,32 @@ public class CommentMapper {
 
     private final ContentItemMapper contentItemMapper;
 
+    @Value("${clickup.base-folder}")
+    private String baseFolder;
+
     public CommentMapper(ContentItemMapper contentItemMapper) {
         this.contentItemMapper = contentItemMapper;
     }
 
-    public CommentDTO toCommentDTO(String taskId, TaskComments.Comment comment) {
+    public CommentDTO toCommentDTO(TaskHistory taskHistory, TaskComments.Comment comment) {
         CommentDTO commentDTO = new CommentDTO();
         commentDTO.setId(comment.id);
         commentDTO.setType(comment.type);
         commentDTO.setTimeStamp(Long.parseLong(comment.date));
         commentDTO.setDateTime(CommonUtils.formatToDateTimeFromTimestamp(comment.date, MMM_DD_AT_H_MM_A));
         commentDTO.setUsername(Objects.nonNull(comment.user) ? comment.user.username : null);
-        commentDTO.setCommentItems(comment.commentDetails.stream().map(ContentItemDTO::new).collect(Collectors.toList()));
+        commentDTO.setCommentItems(comment.commentDetails.stream().map(contentItemMapper::toContentItemDTO).collect(Collectors.toList()));
         commentDTO.setUser(new UserDTO(comment.user));
         commentDTO.setAssignedBy(new UserDTO(comment.assignedBy));
         commentDTO.setAssignee(new UserDTO(comment.assignee));
         commentDTO.setResolvedBy(new UserDTO(comment.resolvedBy));
         commentDTO.setResolved(comment.resolved);
-        commentDTO.setHtmlText(buildHtml(taskId, commentDTO.getCommentItems()));
+        commentDTO.setHtmlText(buildHtml(taskHistory, commentDTO.getCommentItems()));
         return commentDTO;
     }
 
-    public CommentDTO processAddHistory(String taskId, Map<String, CommentDTO> map, TaskComments.Comment comment) {
-        CommentDTO commentDTO = toCommentDTO(taskId, comment);
+    public CommentDTO processAddHistory(TaskHistory taskHistory, Map<String, CommentDTO> map, TaskComments.Comment comment) {
+        CommentDTO commentDTO = toCommentDTO(taskHistory, comment);
         CommentDTO commentHistory = map.get(commentDTO.getId());
         if (Objects.nonNull(commentHistory)) {
             commentDTO.addHistory(commentHistory);
@@ -47,9 +51,9 @@ public class CommentMapper {
         return commentDTO;
     }
 
-    public String buildHtml(Profile profile, String taskId, TaskContentData taskContentData) {
+    public String buildHtml(Profile profile, TaskHistory taskHistory, TaskContentData taskContentData) {
         return buildHtml(
-            taskId,
+            taskHistory,
             taskContentData.contentItemData
                 .stream()
                 .map(taskContentItemData -> contentItemMapper.toContentItemDTO(profile, taskContentItemData))
@@ -57,15 +61,12 @@ public class CommentMapper {
         );
     }
 
-    public String buildHtml(String taskId, List<ContentItemDTO> commentItems) {
+    public String buildHtml(TaskHistory taskHistory, List<ContentItemDTO> commentItems) {
         StringBuilder htmlBuilder = new StringBuilder();
         StringBuilder blockBuilder = new StringBuilder();
         StringBuilder orderedBuilder = new StringBuilder();
         StringBuilder tableBuilder = new StringBuilder();
         StringBuilder rowBuilder = new StringBuilder();
-        int previousOrderedIndex = 0;
-        int previousTableIndex = 0;
-        int previousRowIndex = 0;
         ContentItemDTO previousBlockItem = null;
         String beforeBlockType = "";
         int size = commentItems.size();
@@ -73,66 +74,20 @@ public class CommentMapper {
             ContentItemDTO commentItem = commentItems.get(index);
             String text = commentItem.getText();
             AttributesDTO attributes = commentItem.getAttributes();
-            if (Objects.isNull(attributes)) {
+            if (Objects.isNull(attributes) && Objects.isNull(commentItem.getType())) {
                 htmlBuilder.append(text);
             } else {
-                if (Objects.nonNull(attributes.getBlockId())) {
+                if (Objects.nonNull(attributes) && Objects.nonNull(attributes.getBlockId())) {
                     if (Objects.nonNull(attributes.getList()) && ("ordered".equals(attributes.getList()))) {
-                        if ("ordered".equals(beforeBlockType)) {
-                            String orderedBlock = blockBuilder.toString();
-                            blockBuilder = new StringBuilder();
-                            appendOrdered(orderedBuilder).append(orderedBlock).append("</li>");
-                        } else if (orderedBuilder.toString().isEmpty()) {
-                            String orderedBlock = blockBuilder.toString();
-                            blockBuilder = new StringBuilder();
-                            orderedBuilder.append("<ol type=\"1\">");
-                            appendOrdered(orderedBuilder).append(orderedBlock).append("</li>");
-                        }
+                        blockBuilder = appendOrderedList(blockBuilder, orderedBuilder, beforeBlockType);
                         beforeBlockType = "ordered";
                     }
                     if (Objects.nonNull(attributes.getTableCellLineCell())) {
                         if ("table".equals(beforeBlockType)) {
-                            String rowBlock = blockBuilder.toString();
-                            blockBuilder = new StringBuilder();
-                            if (
-                                Objects.nonNull(previousBlockItem) &&
-                                Objects.nonNull(previousBlockItem.getAttributes()) &&
-                                Objects.nonNull(previousBlockItem.getAttributes().getTableCellLineCell())
-                            ) {
-                                String indexNextRow = previousBlockItem.getAttributes().getTableCellLineCell().split("-")[0];
-                                String indexCurrentRow = attributes.getTableCellLineCell().split("-")[0];
-                                if (!indexCurrentRow.equals(indexNextRow)) {
-                                    rowBuilder.append("</tr>");
-                                    appendRow(rowBuilder);
-                                }
-                            }
-                            appendCell(rowBuilder, attributes.getTableCellLineRowspan(), attributes.getTableCellLineColspan())
-                                .append(rowBlock)
-                                .append("</td>");
+                            blockBuilder = appendRow(blockBuilder, rowBuilder, previousBlockItem, attributes);
                         } else if (rowBuilder.toString().isEmpty()) {
-                            if (!tableBuilder.toString().isEmpty()) {
-                                htmlBuilder.append(tableBuilder);
-                                htmlBuilder.append("</colgroup>");
-                                htmlBuilder.append("<tbody>");
-                                tableBuilder = new StringBuilder();
-                            }
-                            String orderedBlock = blockBuilder.toString();
-                            blockBuilder = new StringBuilder();
-                            appendRow(rowBuilder);
-                            appendCell(rowBuilder, attributes.getTableCellLineRowspan(), attributes.getTableCellLineColspan())
-                                .append(orderedBlock)
-                                .append("</td>");
-                            if (
-                                Objects.nonNull(previousBlockItem) &&
-                                Objects.nonNull(previousBlockItem.getAttributes()) &&
-                                Objects.nonNull(previousBlockItem.getAttributes().getTableCellLineCell())
-                            ) {
-                                String indexNextRow = previousBlockItem.getAttributes().getTableCellLineCell().split("-")[0];
-                                String indexCurrentRow = attributes.getTableCellLineCell().split("-")[0];
-                                if (!indexCurrentRow.equals(indexNextRow)) {
-                                    rowBuilder.append("</tr>");
-                                }
-                            }
+                            tableBuilder = appendEndOfHeaderTable(htmlBuilder, tableBuilder);
+                            blockBuilder = appendFirstRowTable(blockBuilder, rowBuilder, previousBlockItem, attributes);
                         }
                         beforeBlockType = "table";
                         previousBlockItem = commentItem;
@@ -140,19 +95,11 @@ public class CommentMapper {
                     if (index == size - 1) {
                         if ((!rowBuilder.toString().isEmpty() && "table".equals(beforeBlockType))) {
                             blockBuilder = new StringBuilder();
-                            blockBuilder.append(rowBuilder);
-                            blockBuilder.append("</tr>");
-                            blockBuilder.append("</tbody>");
-                            blockBuilder.append("</table>");
-                            htmlBuilder.append(blockBuilder);
-                            rowBuilder = new StringBuilder();
+                            rowBuilder = appendEndOfTable(htmlBuilder, blockBuilder, rowBuilder);
                             blockBuilder = new StringBuilder();
                         } else if ((!orderedBuilder.toString().isEmpty() && "ordered".equals(beforeBlockType))) {
                             blockBuilder = new StringBuilder();
-                            blockBuilder.append(orderedBuilder);
-                            blockBuilder.append("</ol>");
-                            htmlBuilder.append(blockBuilder);
-                            orderedBuilder = new StringBuilder();
+                            orderedBuilder = appendEndOfOrderedList(htmlBuilder, blockBuilder, orderedBuilder);
                             blockBuilder = new StringBuilder();
                         } else {
                             String block = blockBuilder.toString();
@@ -169,20 +116,12 @@ public class CommentMapper {
                             Objects.isNull(attributes.getTableCellLineCell())
                         ) {
                             blockBuilder = new StringBuilder();
-                            blockBuilder.append(rowBuilder);
-                            blockBuilder.append("</tr>");
-                            blockBuilder.append("</tbody>");
-                            blockBuilder.append("</table>");
-                            htmlBuilder.append(blockBuilder);
-                            rowBuilder = new StringBuilder();
+                            rowBuilder = appendEndOfTable(htmlBuilder, blockBuilder, rowBuilder);
                             blockBuilder = new StringBuilder();
                         }
                         if ((!orderedBuilder.toString().isEmpty() && !"ordered".equals(beforeBlockType))) {
                             blockBuilder = new StringBuilder();
-                            blockBuilder.append(orderedBuilder);
-                            blockBuilder.append("</ol>");
-                            htmlBuilder.append(blockBuilder);
-                            orderedBuilder = new StringBuilder();
+                            orderedBuilder = appendEndOfOrderedList(htmlBuilder, blockBuilder, orderedBuilder);
                             blockBuilder = new StringBuilder();
                         }
                     }
@@ -198,31 +137,18 @@ public class CommentMapper {
                         htmlBuilder.append(blockBuilder);
                         blockBuilder = new StringBuilder();
                     }
-                } else {
+                } else if (Objects.nonNull(attributes)) {
                     if (Objects.nonNull(attributes.getTableColWidth())) {
-                        ContentItemDTO nextItem = null;
-                        ContentItemDTO nextTwoItem = null;
-                        if (index + 1 < commentItems.size()) {
-                            nextItem = commentItems.get(index + 1);
-                        }
-                        if (index + 2 < commentItems.size()) {
-                            nextTwoItem = commentItems.get(index + 2);
-                        }
-                        if ("tableHeader".equals(beforeBlockType)) {
-                            blockBuilder = new StringBuilder();
-                            appendCol(tableBuilder, attributes.getTableColWidth()).append("</col>");
-                            previousTableIndex = index;
-                        } else if (tableBuilder.toString().isEmpty()) {
-                            blockBuilder = new StringBuilder();
-                            tableBuilder.append("<table>").append("<colgroup>");
-                            appendCol(tableBuilder, attributes.getTableColWidth()).append("</col>");
-                            previousTableIndex = index;
-                        }
+                        blockBuilder = appendTableHeader(blockBuilder, tableBuilder, beforeBlockType, attributes);
                         previousBlockItem = commentItem;
                         beforeBlockType = "tableHeader";
-                    } else if ("attachment".equals(commentItem.getType())) {
+                    } else {
+                        applyAttributes(blockBuilder, text, attributes);
+                    }
+                } else {
+                    if ("attachment".equals(commentItem.getType())) {
                         if (commentItem.isImage()) {
-                            appendImage(taskId, blockBuilder, commentItem, false);
+                            appendImage(taskHistory, blockBuilder, commentItem, false);
                         }
                         blockBuilder.append("<a href=\"").append(commentItem.getAttachmentId()).append("\">");
                         blockBuilder.append(text);
@@ -235,11 +161,9 @@ public class CommentMapper {
                     } else if ("divider".equals(commentItem.getType())) {
                         blockBuilder.append("<hr>");
                     } else if ("taskImage".equals(commentItem.getType())) {
-                        appendImage(taskId, blockBuilder, commentItem, true);
+                        appendImage(taskHistory, blockBuilder, commentItem, true);
                     } else if ("taskMention".equals(commentItem.getType())) {
                         appendTaskMention(commentItem.getText(), commentItem.getUrl(), blockBuilder);
-                    } else {
-                        applyAttributes(blockBuilder, text, attributes);
                     }
                 }
             }
@@ -247,18 +171,129 @@ public class CommentMapper {
         return htmlBuilder.toString();
     }
 
-    private void appendImage(String taskId, StringBuilder blockBuilder, ContentItemDTO commentItem, boolean isTaskImage) {
+    private StringBuilder appendTableHeader(
+        StringBuilder blockBuilder,
+        StringBuilder tableBuilder,
+        String beforeBlockType,
+        AttributesDTO attributes
+    ) {
+        if ("tableHeader".equals(beforeBlockType)) {
+            blockBuilder = new StringBuilder();
+            appendCol(tableBuilder, attributes.getTableColWidth()).append("</col>");
+        } else if (tableBuilder.toString().isEmpty()) {
+            blockBuilder = new StringBuilder();
+            tableBuilder.append("<table>").append("<colgroup>");
+            appendCol(tableBuilder, attributes.getTableColWidth()).append("</col>");
+        }
+        return blockBuilder;
+    }
+
+    private StringBuilder appendEndOfOrderedList(StringBuilder htmlBuilder, StringBuilder blockBuilder, StringBuilder orderedBuilder) {
+        blockBuilder.append(orderedBuilder);
+        blockBuilder.append("</ol>");
+        htmlBuilder.append(blockBuilder);
+        orderedBuilder = new StringBuilder();
+        return orderedBuilder;
+    }
+
+    private StringBuilder appendEndOfTable(StringBuilder htmlBuilder, StringBuilder blockBuilder, StringBuilder rowBuilder) {
+        blockBuilder.append(rowBuilder);
+        blockBuilder.append("</tr>");
+        blockBuilder.append("</tbody>");
+        blockBuilder.append("</table>");
+        htmlBuilder.append(blockBuilder);
+        rowBuilder = new StringBuilder();
+        return rowBuilder;
+    }
+
+    private StringBuilder appendFirstRowTable(
+        StringBuilder blockBuilder,
+        StringBuilder rowBuilder,
+        ContentItemDTO previousBlockItem,
+        AttributesDTO attributes
+    ) {
+        String orderedBlock = blockBuilder.toString();
+        blockBuilder = new StringBuilder();
+        appendRow(rowBuilder);
+        appendCell(rowBuilder, attributes.getTableCellLineRowspan(), attributes.getTableCellLineColspan())
+            .append(orderedBlock)
+            .append("</td>");
+        if (
+            Objects.nonNull(previousBlockItem) &&
+            Objects.nonNull(previousBlockItem.getAttributes()) &&
+            Objects.nonNull(previousBlockItem.getAttributes().getTableCellLineCell())
+        ) {
+            String indexNextRow = previousBlockItem.getAttributes().getTableCellLineCell().split("-")[0];
+            String indexCurrentRow = attributes.getTableCellLineCell().split("-")[0];
+            if (!indexCurrentRow.equals(indexNextRow)) {
+                rowBuilder.append("</tr>");
+            }
+        }
+        return blockBuilder;
+    }
+
+    private StringBuilder appendEndOfHeaderTable(StringBuilder htmlBuilder, StringBuilder tableBuilder) {
+        if (!tableBuilder.toString().isEmpty()) {
+            htmlBuilder.append(tableBuilder);
+            htmlBuilder.append("</colgroup>");
+            htmlBuilder.append("<tbody>");
+            tableBuilder = new StringBuilder();
+        }
+        return tableBuilder;
+    }
+
+    private StringBuilder appendRow(
+        StringBuilder blockBuilder,
+        StringBuilder rowBuilder,
+        ContentItemDTO previousBlockItem,
+        AttributesDTO attributes
+    ) {
+        String rowBlock = blockBuilder.toString();
+        blockBuilder = new StringBuilder();
+        if (
+            Objects.nonNull(previousBlockItem) &&
+            Objects.nonNull(previousBlockItem.getAttributes()) &&
+            Objects.nonNull(previousBlockItem.getAttributes().getTableCellLineCell())
+        ) {
+            String indexNextRow = previousBlockItem.getAttributes().getTableCellLineCell().split("-")[0];
+            String indexCurrentRow = attributes.getTableCellLineCell().split("-")[0];
+            if (!indexCurrentRow.equals(indexNextRow)) {
+                rowBuilder.append("</tr>");
+                appendRow(rowBuilder);
+            }
+        }
+        appendCell(rowBuilder, attributes.getTableCellLineRowspan(), attributes.getTableCellLineColspan()).append(rowBlock).append("</td>");
+        return blockBuilder;
+    }
+
+    private StringBuilder appendOrderedList(StringBuilder blockBuilder, StringBuilder orderedBuilder, String beforeBlockType) {
+        if ("ordered".equals(beforeBlockType)) {
+            String orderedBlock = blockBuilder.toString();
+            blockBuilder = new StringBuilder();
+            appendOrdered(orderedBuilder).append(orderedBlock).append("</li>");
+        } else if (orderedBuilder.toString().isEmpty()) {
+            String orderedBlock = blockBuilder.toString();
+            blockBuilder = new StringBuilder();
+            orderedBuilder.append("<ol type=\"1\">");
+            appendOrdered(orderedBuilder).append(orderedBlock).append("</li>");
+        }
+        return blockBuilder;
+    }
+
+    private void appendImage(TaskHistory taskHistory, StringBuilder blockBuilder, ContentItemDTO commentItem, boolean isTaskImage) {
         blockBuilder.append("<a class=\"block_image\" href=\"").append(commentItem.getAttachmentId()).append("\">");
         if (isTaskImage) {
             blockBuilder
                 .append("<img class=\"task_image page_break_inside\" src=\"")
-                .append(FileUtils.getOutputDirectoryForTask(taskId))
+                .append(taskHistory.getFullPath())
+                .append("\\/")
                 .append(commentItem.getAttachmentId())
                 .append("\"/>");
         } else {
             blockBuilder
                 .append("<img class=\"comment_image page_break_inside\" src=\"")
-                .append(FileUtils.getOutputDirectoryForTask(taskId))
+                .append(taskHistory.getFullPath())
+                .append("\\/")
                 .append(commentItem.getAttachmentId())
                 .append("\"/>");
         }

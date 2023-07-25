@@ -1,7 +1,11 @@
 package com.formos.service.impl;
 
 import com.formos.config.Constants;
+import com.formos.domain.DownloadHistory;
+import com.formos.domain.File;
 import com.formos.domain.Profile;
+import com.formos.repository.DownloadHistoryRepository;
+import com.formos.repository.FileRepository;
 import com.formos.repository.ProfileRepository;
 import com.formos.service.ClickUpClientService;
 import com.formos.service.ClickUpService;
@@ -9,26 +13,28 @@ import com.formos.service.dto.clickup.*;
 import com.formos.service.mapper.CommentMapper;
 import com.formos.service.mapper.TaskMapper;
 import com.formos.service.utils.FileUtils;
-import com.formos.web.rest.errors.BadRequestAlertException;
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import net.lingala.zip4j.ZipFile;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.util.StringUtils;
 
 @Service
+@Transactional
 public class ClickUpServiceImpl implements ClickUpService {
 
     private final Logger log = LoggerFactory.getLogger(ClickUpServiceImpl.class);
@@ -36,82 +42,80 @@ public class ClickUpServiceImpl implements ClickUpService {
     private final ClickUpClientService clickUpClientService;
 
     private final ProfileRepository profileRepository;
+    private final FileRepository fileRepository;
+    private final DownloadHistoryRepository downloadHistoryRepository;
     private final TaskMapper taskMapper;
     private final CommentMapper commentMapper;
+
+    @Value("${clickup.base-folder}")
+    private String baseFolder;
 
     public ClickUpServiceImpl(
         SpringTemplateEngine templateEngine,
         ClickUpClientService clickUpClientService,
+        FileRepository fileRepository,
         ProfileRepository profileRepository,
+        DownloadHistoryRepository downloadHistoryRepository,
         TaskMapper taskMapper,
         CommentMapper commentMapper
     ) {
         this.templateEngine = templateEngine;
         this.clickUpClientService = clickUpClientService;
         this.profileRepository = profileRepository;
+        this.fileRepository = fileRepository;
+        this.downloadHistoryRepository = downloadHistoryRepository;
         this.taskMapper = taskMapper;
         this.commentMapper = commentMapper;
     }
 
     @Override
-    public void exportPdfForTask(Long profileId, String taskId) throws Exception {
-        Profile profile = profileRepository.findById(profileId).orElseThrow(Exception::new);
+    public TaskHistory exportPdfForTask(Profile profile, String taskId) throws Exception {
         Header authorization = new BasicHeader("Authorization", profile.getApiKey());
 
         String taskApiEndPoint = Constants.TASK_API_ENDPOINT + taskId;
         String taskCommentsEndPoint = taskApiEndPoint + "/comment";
 
-        //        Task task = ClickUpCall.getRequest(taskApiEndPoint, null, authorization, Task.class);
         String taskEndpoint = profile.getBaseUrl() + Constants.TASK_ENDPOINT + taskId;
-        //        TaskData taskData = ClickUpCall.getTask(taskEndpoint, new BasicHeader("Authorization", "Bearer " + token));
 
-        int tryTime = 0;
-        TaskData taskData;
-        Header tokenHeader;
-        do {
-            if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
-                TokenResponse tokenResponse = getTokenResponse(profile);
-                tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
-                taskData = clickUpClientService.getTask(taskEndpoint, tokenHeader);
-                profile.setToken(tokenResponse.token);
-                profileRepository.saveAndFlush(profile);
-            } else {
-                tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
-                taskData = clickUpClientService.getTask(taskEndpoint, tokenHeader);
-            }
-            tryTime++;
-        } while (tryTime == 1 && Objects.isNull(taskData));
+        TokenHistory tokenHistory = getTokenAndHistory(profile, taskId);
 
-        //        TaskDTO taskDTO = new TaskDTO(task);
-        TaskDTO taskDTO = taskMapper.toTaskDTO(profile, taskData);
+        if (Objects.isNull(tokenHistory)) {
+            return null;
+        }
 
-        String historyEndpoint = profile.getBaseUrl() + Constants.TASK_ENDPOINT + taskId + "/history";
-        HistoryData historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader);
+        String currentTime = String.valueOf(Instant.now().getEpochSecond());
+        TaskData taskData = clickUpClientService.getTask(taskEndpoint, tokenHistory.getToken());
+        HistoryData historyData = tokenHistory.getHistoryData();
         List<History> historyComments = historyData
             .getHistory()
             .stream()
             .filter(history -> Constants.COMMENT_TYPES.contains(history.field))
             .collect(Collectors.toList());
+
+        TaskHistory taskHistory = new TaskHistory(baseFolder, taskId, currentTime);
+
         Map<String, CommentDTO> map = new HashMap<>();
         for (History history : historyComments) {
             TaskComments.Comment comment = history.comment;
             if (Objects.isNull(map.get(comment.id))) {
-                map.put(comment.id, commentMapper.toCommentDTO(taskId, comment));
+                map.put(comment.id, commentMapper.toCommentDTO(taskHistory, comment));
             }
         }
+
+        TaskDTO taskDTO = taskMapper.toTaskDTO(profile, taskData, taskHistory);
 
         TaskComments taskComments = clickUpClientService.getRequest(taskCommentsEndPoint, null, authorization, TaskComments.class);
         List<CommentDTO> commentDTOs = taskComments.comments
             .stream()
-            .map(comment -> commentMapper.processAddHistory(taskId, map, comment))
+            .map(comment -> commentMapper.processAddHistory(taskHistory, map, comment))
             .collect(Collectors.toList());
         Collections.reverse(commentDTOs);
 
         for (CommentDTO comment : commentDTOs) {
             List<CommentDTO> children = clickUpClientService
-                .getChildrenComments(taskId, map, comment, profile.getBaseUrl() + Constants.REPLY_ENDPOINT, tokenHeader)
+                .getChildrenComments(taskId, map, comment, profile.getBaseUrl() + Constants.REPLY_ENDPOINT, tokenHistory.getToken())
                 .comments.stream()
-                .map(commentChild -> commentMapper.processAddHistory(taskId, map, commentChild))
+                .map(commentChild -> commentMapper.processAddHistory(taskHistory, map, commentChild))
                 .collect(Collectors.toList());
             Collections.reverse(children);
             Set<AttachmentDTO> attachmentDTOS = children
@@ -129,20 +133,76 @@ public class ClickUpServiceImpl implements ClickUpService {
         }
 
         taskDTO.setComments(commentDTOs);
-        taskDTO.setBaseImagePath(FileUtils.getOutputDirectoryForTask(taskId));
-        String saveDirectory = FileUtils.getOutputDirectoryForTask(taskDTO.getId());
-        FileUtils.createPathIfNotExists(saveDirectory);
+        String saveDirectory = taskHistory.getFullPath();
+        String saveDirectoryPath = saveDirectory + "\\/";
+        taskDTO.setBaseImagePath(saveDirectoryPath);
+        FileUtils.createPathIfNotExists(saveDirectoryPath);
         taskDTO
             .getAttachments()
             .forEach(attachmentDTO -> {
                 try {
-                    FileUtils.downloadFile(attachmentDTO.getUrl(), saveDirectory, attachmentDTO.getId());
+                    FileUtils.downloadFile(attachmentDTO.getUrl(), saveDirectoryPath, attachmentDTO.getId());
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
             });
 
-        exportPdf(taskDTO, saveDirectory);
+        exportPdf(taskDTO, saveDirectoryPath);
+
+        ZipFile zipFile = new ZipFile(saveDirectory + ".zip");
+        // Now add files to the zip file
+        zipFile.addFolder(new java.io.File(saveDirectory));
+        org.apache.commons.io.FileUtils.deleteQuietly(new java.io.File(saveDirectory));
+
+        return taskHistory;
+    }
+
+    private TokenHistory getTokenAndHistory(Profile profile, String taskId) throws Exception {
+        int tryTime = 0;
+        HistoryData historyData;
+        Header tokenHeader;
+        String historyEndpoint = profile.getBaseUrl() + Constants.TASK_ENDPOINT + taskId + "/history";
+        do {
+            if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
+                TokenResponse tokenResponse = getTokenResponse(profile);
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
+                historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader);
+                profile.setToken(tokenResponse.token);
+                profileRepository.saveAndFlush(profile);
+            } else {
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
+                historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader);
+            }
+            tryTime++;
+        } while (tryTime == 1 && Objects.isNull(historyData));
+        if (Objects.isNull(historyData) || tryTime > 1) {
+            return null;
+        }
+        return new TokenHistory(tokenHeader, historyData);
+    }
+
+    @Override
+    public void exportPdfForTasks(Long profileId, List<String> taskIds) throws Exception {
+        Profile profile = profileRepository.findById(profileId).orElseThrow(Exception::new);
+        for (String taskId : taskIds) {
+            TaskHistory taskHistory = exportPdfForTask(profile, taskId);
+            if (Objects.nonNull(taskHistory)) {
+                DownloadHistory downloadHistory = new DownloadHistory();
+                downloadHistory.setTaskId(taskId);
+                downloadHistory.setProfile(profile);
+                downloadHistoryRepository.save(downloadHistory);
+                File file = new File();
+                file.setName(taskId + "_" + taskHistory.getTimestamp());
+                file.setFileOnServer(taskId);
+                file.setRelativePath(taskHistory.getRelativePath());
+                file.setDownloadHistory(downloadHistory);
+                fileRepository.save(file);
+            }
+        }
+    }
+
+    private String getLastHistoryId(HistoryData historyData) {
+        return historyData.getHistory().get(0).id;
     }
 
     private TokenResponse getTokenResponse(Profile profile) {

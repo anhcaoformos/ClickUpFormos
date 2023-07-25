@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.springframework.beans.factory.annotation.Value;
 
 public class FileUtils {
 
@@ -32,7 +34,7 @@ public class FileUtils {
         } else if (!dir.exists()) {
             dir.mkdirs();
             return true;
-        } else if (dir.isDirectory() && dir.list().length < DIR_MAX_SIZE) {
+        } else if (dir.isDirectory() && Objects.requireNonNull(dir.list()).length < DIR_MAX_SIZE) {
             return true;
         } else {
             return false;
@@ -176,7 +178,7 @@ public class FileUtils {
 
     public static void writeTokenToFile(String filePath, String token) throws IOException {
         Path path = Paths.get(filePath);
-        Files.write(path, token.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, token);
     }
 
     public static String getCurrentPackage(Class<?> inputClass) {
@@ -197,8 +199,21 @@ public class FileUtils {
         return getCurrentSourcePath() + "\\src\\clickup\\input\\" + Constants.INPUT_TOKEN_FILE_NAME;
     }
 
-    public static String getOutputDirectoryForTask(String taskId) {
-        return FileUtils.getCurrentSourcePath() + "\\src\\clickup\\output\\" + taskId + "\\";
+    //    public static String getOutputDirectoryForTask(String taskId) {
+    //        return FileUtils.getCurrentSourcePath() + "\\src\\clickup\\output\\" + taskId + "\\";
+    //    }
+
+    public static String getOutputDirectoryForTaskHistory(String baseFolder, String taskId, String timestamp) {
+        return (
+            FileUtils.getCurrentSourcePath() +
+            "\\/" +
+            baseFolder +
+            "\\/" +
+            FileUtils.getRelativePath(baseFolder, null) +
+            taskId +
+            "_" +
+            timestamp
+        );
     }
 
     public static void createPathIfNotExists(String savePath) {

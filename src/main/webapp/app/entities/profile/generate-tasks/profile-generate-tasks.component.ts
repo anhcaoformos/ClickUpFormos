@@ -6,9 +6,8 @@ import { DurationPipe, FormatMediumDatetimePipe, FormatMediumDatePipe } from 'ap
 import { IProfile } from '../profile.model';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
-import { ProfileFormGroup } from '../update/profile-form.service';
 import { ProfileService } from '../service/profile.service';
-import { saveAs } from 'file-saver';
+// import { saveAs } from 'file-saver';
 
 @Component({
   standalone: true,
@@ -35,8 +34,8 @@ export class ProfileGenerateTasksComponent {
         tasks[index] = tasks[index].trim();
       }
       this.profileService.generateTasks(this.profile, tasks).subscribe(data => {
-        const blob = new Blob([data.body], { type: 'text/plain;charset=utf-8' });
-        saveAs(blob, 'test.txt');
+        // const blob = new Blob([data.body], { type: 'text/plain;charset=utf-8' });
+        // saveAs(blob, 'test.txt');
       });
     }
   }

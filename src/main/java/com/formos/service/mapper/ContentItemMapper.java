@@ -5,6 +5,7 @@ import com.formos.domain.Profile;
 import com.formos.service.ClickUpClientService;
 import com.formos.service.dto.clickup.AttributesDTO;
 import com.formos.service.dto.clickup.ContentItemDTO;
+import com.formos.service.dto.clickup.TaskComments;
 import com.formos.service.dto.clickup.TaskContentItemData;
 import com.formos.service.utils.CommonUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
@@ -20,6 +21,23 @@ public class ContentItemMapper {
 
     public ContentItemMapper(ClickUpClientService clickUpClientService) {
         this.clickUpClientService = clickUpClientService;
+    }
+
+    public ContentItemDTO toContentItemDTO(TaskComments.CommentItem commentItem) {
+        ContentItemDTO contentItemDTO = new ContentItemDTO();
+        contentItemDTO.setText(commentItem.text);
+        contentItemDTO.setType(commentItem.type);
+        contentItemDTO.setAttributes(Objects.nonNull(commentItem.attributes) ? new AttributesDTO(commentItem.attributes) : null);
+        if (Objects.nonNull(commentItem.attachment)) {
+            contentItemDTO.setUrl(commentItem.attachment.url);
+            contentItemDTO.setAttachmentId(commentItem.attachment.id);
+            contentItemDTO.setExtension(commentItem.attachment.extension);
+            contentItemDTO.setImage(Constants.IMAGE_EXTENSION.contains(commentItem.attachment.extension));
+        }
+        if (Objects.nonNull(commentItem.emoticon) && Objects.nonNull(commentItem.emoticon.code)) {
+            contentItemDTO.setEmoticonCode(commentItem.emoticon.code);
+        }
+        return contentItemDTO;
     }
 
     ContentItemDTO toContentItemDTO(Profile profile, TaskContentItemData taskContentItemData) {
