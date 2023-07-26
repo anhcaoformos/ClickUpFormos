@@ -20,7 +20,8 @@
         display: flex;
         -webkit-box-pack: start; /* wkhtmltopdf uses this one */
         justify-content: start;
-        height: 25px;
+        -webkit-box-align: center;
+        align-items: center;
       }
       .user_header_img {
         border-radius: 50%;
@@ -33,10 +34,10 @@
         height: 25px;
         margin-right: 10px;
         font-size: 10px;
-        margin-left: 10px;
       }
       .separate_div {
         width: 20px;
+        height: 25px;
         border-left: 1px solid #2a2e34;
         margin-left: 20px;
       }
@@ -53,6 +54,7 @@
         border-radius: 2px 13px 13px 2px;
         margin: 0 4px 4px 0;
         padding: 0 10px 0 8px;
+        text-align: center;
       }
       .task_body {
         border: 1px solid #e9ebf0;
@@ -212,10 +214,13 @@
         padding: 5px 10px;
       }
       .subtask_status {
-        height: 20px;
-        width: 20px;
+        height: 15px;
+        width: 15px;
         margin: 0 10px 0 0;
         padding: 0;
+      }
+      .row_element {
+        margin-right: 10px;
       }
     </style>
     <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js"></script>
@@ -228,14 +233,14 @@
   <body>
     <div class="container">
       <div class="row_start">
-        <div class="status" th:style="${'background-color: ' + task.getStatusColor()}" th:text="${task.getStatus()}"></div>
+        <div class="status row_element" th:style="${'background-color: ' + task.getStatusColor()}" th:text="${task.getStatus()}"></div>
         <div
-          class="user_header_img"
+          class="user_header_img row_element"
           th:text="${task.getCreator().getInitials()}"
           th:style="'background:' + ${task.getCreator().getColor()}"
         ></div>
-        <div class="separate_div"></div>
-        <div>
+        <div class="separate_div row_element"></div>
+        <div class="row_element">
           <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               fill-rule="evenodd"
@@ -247,9 +252,9 @@
         </div>
       </div>
       <hr style="margin: 20px" />
-      <div class="task_header" th:if="${not #lists.isEmpty(task.getTags())}">
+      <div class="row_start" th:if="${not #lists.isEmpty(task.getTags())}">
         <div
-          class="tag"
+          class="tag row_element"
           th:each="tag : ${task.getTags()}"
           th:style="'background: ' + ${tag.getTagBackground()} + '; text-color: ' + ${tag.getTagForeground()} + ';'"
           th:text="${tag.getName()}"
@@ -270,16 +275,17 @@
           </div>
         </div>
         <div id="subtasks" th:if="${not #lists.isEmpty(task.getSubtasks())}">
+          <h3>Subtasks:</h3>
           <div class="row_start" th:each="subtask : ${task.getSubtasks()}">
             <div
               class="subtask_status"
-              th:style="'border: 1px solid ' + ${subtask.getStatusColor()} + '; color: ' + ${subtask.getStatusColor()} + ';'"
+              th:style="'border: 1px solid ' + ${subtask.getStatusColor()} + '; background: ' + ${subtask.getStatusColor()} + ';'"
             ></div>
-            <div th:if="${not #lists.isEmpty(subtask.getAssignees())}" th:each="assignee : ${subtask.getAssigness()}">
-              <div class="user_header_img" th:text="${assignee.getInitials()}" th:style="'background:' + ${assignee.getColor()}"></div>
+            <div class="row_element" th:text="${subtask.getName()}"></div>
+            <div th:if="${not #lists.isEmpty(subtask.getAssignees())}" th:each="assignee : ${subtask.getAssignees()}">
+              <div class="user_img" th:text="${assignee.getInitials()}" th:style="'background:' + ${assignee.getColor()}"></div>
             </div>
-            <div th:text="${subtask.getName()}"></div>
-            <div>
+            <div class="row_element">
               <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   fill-rule="evenodd"
@@ -289,13 +295,32 @@
                 />
               </svg>
             </div>
-            <div th:text="subtask.getDueDate()"></div>
-            <div th:if="${not #lists.isEmpty(subtask.getTags())}" th:each="tag : ${subtask.getTags()}">
+            <div class="row_element" th:text="${subtask.getDueDate()}"></div>
+            <div class="row_element" th:if="${not #lists.isEmpty(subtask.getTags())}" th:each="tag : ${subtask.getTags()}">
               <div
                 class="tag"
                 th:style="'background: ' + ${tag.getTagBackground()} + '; text-color: ' + ${tag.getTagForeground()} + ';'"
                 th:text="${tag.getName()}"
               ></div>
+            </div>
+          </div>
+        </div>
+        <div id="checklists" th:if="${not #lists.isEmpty(task.getChecklists())}">
+          <div th:each="checklist : ${task.getChecklists()}">
+            <div th:if="${not #lists.isEmpty(checklist.getItems())}">
+              <h3>Checklist</h3>
+              <div th:each="checklistItem : ${checklist.getItems()}">
+                <div class="row_start">
+                  <input class="row_element" type="checkbox" th:checked="${checklistItem.getResolved()}" />
+                  <div class="row_element" th:text="${checklistItem.getName()}"></div>
+                  <div
+                    th:if="${checklistItem.getAssignee() !=  null}"
+                    class="user_img row_element"
+                    th:text="${checklistItem.getAssignee().getInitials()}"
+                    th:style="'background:' + ${checklistItem.getAssignee().getColor()}"
+                  ></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

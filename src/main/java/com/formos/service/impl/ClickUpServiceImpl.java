@@ -95,7 +95,7 @@ public class ClickUpServiceImpl implements ClickUpService {
             .getHistory()
             .stream()
             .filter(history -> Constants.COMMENT_TYPES.contains(history.field))
-            .collect(Collectors.toList());
+            .toList();
 
         TaskHistory taskHistory = new TaskHistory(baseFolder, taskId, currentTime);
 

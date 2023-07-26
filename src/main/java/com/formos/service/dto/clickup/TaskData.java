@@ -20,6 +20,7 @@ public class TaskData {
     Task.Priority priority;
     List<Task.Tag> tags;
     List<Task.Subtask> subtasks;
+    List<Task.Checklist> checklists;
 
     public String getId() {
         return id;
@@ -91,5 +92,13 @@ public class TaskData {
 
     public void setSubtasks(List<Task.Subtask> subtasks) {
         this.subtasks = subtasks;
+    }
+
+    public List<Task.Checklist> getChecklists() {
+        return checklists;
+    }
+
+    public void setChecklists(List<Task.Checklist> checklists) {
+        this.checklists = checklists;
     }
 }

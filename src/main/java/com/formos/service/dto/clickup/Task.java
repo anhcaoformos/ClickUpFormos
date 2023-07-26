@@ -22,7 +22,7 @@ public class Task {
     public Creator creator;
     public ArrayList<Object> assignees;
     public ArrayList<Watcher> watchers;
-    public ArrayList<Object> checklists;
+    public ArrayList<Checklist> checklists;
     public ArrayList<Tag> tags;
     public Object parent;
     public Priority priority;
@@ -44,6 +44,40 @@ public class Task {
     public Space space;
     public ArrayList<TaskComments.Attachment> attachments;
     public ArrayList<Subtask> subtasks;
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Checklist {
+
+        public String id;
+        public String name;
+
+        @JsonProperty("orderindex")
+        public Long orderIndex;
+
+        @JsonProperty("creator")
+        public long creatorId;
+
+        public long resolved;
+        public long unresolved;
+        public ArrayList<ChecklistItem> items;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class ChecklistItem {
+
+        public String id;
+        public String name;
+
+        @JsonProperty("orderindex")
+        public Long orderIndex;
+
+        public TaskComments.User assignee;
+
+        @JsonProperty("date_created")
+        public String createdDate;
+
+        public boolean resolved;
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Subtask {

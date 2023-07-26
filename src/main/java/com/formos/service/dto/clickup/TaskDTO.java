@@ -18,6 +18,7 @@ public class TaskDTO {
     private String priorityColor;
     private List<TagDTO> tags;
     private List<SubtaskDTO> subtasks;
+    private List<ChecklistDTO> checklists;
 
     public TaskDTO() {}
 
@@ -127,6 +128,14 @@ public class TaskDTO {
 
     public void setSubtasks(List<SubtaskDTO> subtasks) {
         this.subtasks = subtasks;
+    }
+
+    public List<ChecklistDTO> getChecklists() {
+        return checklists;
+    }
+
+    public void setChecklists(List<ChecklistDTO> checklists) {
+        this.checklists = checklists;
     }
 
     @Override
