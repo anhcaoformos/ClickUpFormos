@@ -18,6 +18,9 @@ public class CommonUtils {
     }
 
     public static String formatToDateTimeFromTimestamp(String timestamp, String pattern) {
+        if (Objects.isNull(timestamp)) {
+            return "";
+        }
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         return dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timestamp)), ZoneId.systemDefault()));
     }

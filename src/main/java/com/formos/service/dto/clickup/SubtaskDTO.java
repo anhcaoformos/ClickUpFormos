@@ -1,25 +1,23 @@
 package com.formos.service.dto.clickup;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-public class TaskDTO {
+public class SubtaskDTO {
 
     private String id;
     private String name;
     private String status;
     private String statusColor;
-    private String description;
-    private List<CommentDTO> comments;
-    private Set<AttachmentDTO> attachments;
-    private String baseImagePath;
     private UserDTO creator;
+    private List<UserDTO> assignees;
     private String priority;
     private String priorityColor;
     private List<TagDTO> tags;
-    private List<SubtaskDTO> subtasks;
+    private String dueDate;
 
-    public TaskDTO() {}
+    public SubtaskDTO() {}
 
     public String getId() {
         return id;
@@ -43,42 +41,6 @@ public class TaskDTO {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<CommentDTO> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<CommentDTO> comments) {
-        this.comments = comments;
-    }
-
-    public Set<AttachmentDTO> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(Set<AttachmentDTO> attachments) {
-        this.attachments = attachments;
-    }
-
-    public void addAttachments(Set<AttachmentDTO> attachmentDTOs) {
-        this.attachments.addAll(attachmentDTOs);
-    }
-
-    public String getBaseImagePath() {
-        return baseImagePath;
-    }
-
-    public void setBaseImagePath(String baseImagePath) {
-        this.baseImagePath = baseImagePath;
     }
 
     public String getStatusColor() {
@@ -121,18 +83,26 @@ public class TaskDTO {
         this.tags = tags;
     }
 
-    public List<SubtaskDTO> getSubtasks() {
-        return subtasks;
+    public String getDueDate() {
+        return dueDate;
     }
 
-    public void setSubtasks(List<SubtaskDTO> subtasks) {
-        this.subtasks = subtasks;
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public List<UserDTO> getAssignees() {
+        return assignees;
+    }
+
+    public void setAssignees(List<UserDTO> assignees) {
+        this.assignees = assignees;
     }
 
     @Override
     public String toString() {
         return (
-            "TaskDTO{" +
+            "SubtaskDTO{" +
             "id='" +
             id +
             '\'' +
@@ -145,18 +115,10 @@ public class TaskDTO {
             ", statusColor='" +
             statusColor +
             '\'' +
-            ", description='" +
-            description +
-            '\'' +
-            ", comments=" +
-            comments +
-            ", attachments=" +
-            attachments +
-            ", baseImagePath='" +
-            baseImagePath +
-            '\'' +
             ", creator=" +
             creator +
+            ", assignees=" +
+            assignees +
             ", priority='" +
             priority +
             '\'' +
@@ -165,8 +127,9 @@ public class TaskDTO {
             '\'' +
             ", tags=" +
             tags +
-            ", subtasks=" +
-            subtasks +
+            ", dueDate='" +
+            dueDate +
+            '\'' +
             '}'
         );
     }

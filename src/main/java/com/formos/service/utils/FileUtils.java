@@ -191,26 +191,14 @@ public class FileUtils {
         return currentDirectory.getAbsolutePath();
     }
 
-    public static String getInputFilePath() {
-        return getCurrentSourcePath() + "\\src\\clickup\\input\\" + Constants.INPUT_TASK_IDS_FILE_NAME;
-    }
-
-    public static String getTokenFilePath() {
-        return getCurrentSourcePath() + "\\src\\clickup\\input\\" + Constants.INPUT_TOKEN_FILE_NAME;
-    }
-
-    //    public static String getOutputDirectoryForTask(String taskId) {
-    //        return FileUtils.getCurrentSourcePath() + "\\src\\clickup\\output\\" + taskId + "\\";
-    //    }
-
-    public static String getOutputDirectoryForTaskHistory(String baseFolder, String taskId, String timestamp) {
+    public static String getOutputDirectoryForTargetAndTimestamp(String baseFolder, String target, String timestamp) {
         return (
             FileUtils.getCurrentSourcePath() +
             "\\/" +
             baseFolder +
             "\\/" +
             FileUtils.getRelativePath(baseFolder, null) +
-            taskId +
+            target +
             "_" +
             timestamp
         );

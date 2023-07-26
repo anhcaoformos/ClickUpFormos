@@ -1,6 +1,8 @@
 package com.formos.service.dto.clickup;
 
 import com.formos.service.utils.FileUtils;
+import java.io.File;
+import net.lingala.zip4j.ZipFile;
 
 public class TaskHistory {
 
@@ -8,12 +10,13 @@ public class TaskHistory {
     private String timestamp;
     private String relativePath;
     private String fullPath;
+    private File folder;
 
     public TaskHistory(String baseFolder, String taskId, String timestamp) {
         this.taskId = taskId;
         this.timestamp = timestamp;
         this.relativePath = FileUtils.getRelativePath(baseFolder, null);
-        this.fullPath = FileUtils.getOutputDirectoryForTaskHistory(baseFolder, taskId, timestamp);
+        this.fullPath = FileUtils.getOutputDirectoryForTargetAndTimestamp(baseFolder, taskId, timestamp);
     }
 
     public String getTaskId() {
@@ -46,5 +49,13 @@ public class TaskHistory {
 
     public void setFullPath(String fullPath) {
         this.fullPath = fullPath;
+    }
+
+    public File getFolder() {
+        return folder;
+    }
+
+    public void setFolder(File folder) {
+        this.folder = folder;
     }
 }

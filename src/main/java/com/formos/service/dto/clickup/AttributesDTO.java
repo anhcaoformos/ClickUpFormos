@@ -16,7 +16,7 @@ public class AttributesDTO {
     private Boolean strike;
     private String list;
     private String link;
-    private String color_class;
+    private String colorClass;
     private String align;
     private Integer indent;
     private Boolean code;
@@ -32,59 +32,7 @@ public class AttributesDTO {
     private String tableCellLineColspan;
     private String tableCellLineCell;
 
-    public AttributesDTO(TaskComments.Attributes attributes) {
-        if (Objects.nonNull(attributes)) {
-            this.blockId = CommonUtils.getOrDefault(attributes.blockId, null);
-            this.bold = CommonUtils.getOrDefault(attributes.bold, null);
-            this.italic = CommonUtils.getOrDefault(attributes.italic, null);
-            this.underline = CommonUtils.getOrDefault(attributes.underline, null);
-            this.header = CommonUtils.getOrDefault(attributes.header, null);
-            this.strike = CommonUtils.getOrDefault(attributes.strike, null);
-            this.list = Objects.nonNull(attributes.list) ? attributes.list.list : null;
-            this.color_class = CommonUtils.getOrDefault(attributes.color_class, null);
-            this.link = CommonUtils.getOrDefault(attributes.link, null);
-            this.align = CommonUtils.getOrDefault(attributes.align, null);
-            this.indent = CommonUtils.getOrDefault(attributes.indent, null);
-            this.code = CommonUtils.getOrDefault(attributes.code, null);
-            this.blockQuote = CommonUtils.getOrDefault(attributes.blockQuote, null);
-            this.advancedBannerColor = CommonUtils.getOrDefault(attributes.advancedBannerColor, null);
-            if (Objects.nonNull(this.getAdvancedBannerColor())) {
-                this.advancedBannerBackgroundColor = decreaseSaturation(this.advancedBannerColor);
-            }
-            this.dataId = CommonUtils.getOrDefault(attributes.dataId, null);
-            this.tableColWidth = Objects.nonNull(attributes.tableCol) ? attributes.tableCol.width : null;
-            if (Objects.nonNull(attributes.tableCellLine)) {
-                this.tableCellLineRow = attributes.tableCellLine.row;
-                this.tableCellLineRowspan = attributes.tableCellLine.rowspan;
-                this.tableCellLineColspan = attributes.tableCellLine.colspan;
-                this.tableCellLineCell = attributes.tableCellLine.cell;
-            }
-
-            this.isMultiple =
-                Constants.CSS_ATTRIBUTES
-                    .stream()
-                    .map(cssAttribute -> getTargetFieldValue(attributes, cssAttribute))
-                    .filter(Objects::nonNull)
-                    .count() +
-                (Objects.nonNull(this.list) && !"ordered".equals(this.list) ? 1 : 0) >
-                1;
-            this.isEmpty =
-                Constants.CSS_ATTRIBUTES
-                    .stream()
-                    .map(cssAttribute -> getTargetFieldValue(attributes, cssAttribute))
-                    .allMatch(Objects::isNull) &&
-                Objects.isNull(this.list);
-        }
-    }
-
-    private Object getTargetFieldValue(TaskComments.Attributes attributes, String cssAttribute) {
-        try {
-            return attributes.getClass().getField(cssAttribute).get(attributes);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+    public AttributesDTO() {}
 
     public String getBlockId() {
         return blockId;
@@ -150,12 +98,12 @@ public class AttributesDTO {
         this.link = link;
     }
 
-    public String getColor_class() {
-        return color_class;
+    public String getColorClass() {
+        return colorClass;
     }
 
-    public void setColor_class(String color_class) {
-        this.color_class = color_class;
+    public void setColorClass(String colorClass) {
+        this.colorClass = colorClass;
     }
 
     public String getAlign() {
@@ -268,35 +216,5 @@ public class AttributesDTO {
 
     public void setTableCellLineRow(String tableCellLineRow) {
         this.tableCellLineRow = tableCellLineRow;
-    }
-
-    private Object getFieldValue(Field field, Object target) {
-        try {
-            return field.get(target);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Color getColorFromName(String colorName) {
-        try {
-            return (Color) Color.class.getField(colorName.toLowerCase()).get(null);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private String decreaseSaturation(String colorName) {
-        Color color = getColorFromName(colorName);
-        if (Objects.isNull(color)) {
-            System.out.println("Invalid color name.");
-            return "white";
-        }
-        float factor = 0.9f;
-        float[] hsl = new float[3];
-        Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsl);
-        hsl[1] = Math.max(0f, hsl[1] - factor);
-        Color modifiedColor = new Color(Color.HSBtoRGB(hsl[0], hsl[1], hsl[2]));
-        return "#" + Integer.toHexString(modifiedColor.getRGB()).substring(2);
     }
 }

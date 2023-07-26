@@ -18,16 +18,20 @@ import org.springframework.stereotype.Service;
 public class ContentItemMapper {
 
     private final ClickUpClientService clickUpClientService;
+    private final AttributeMapper attributeMapper;
 
-    public ContentItemMapper(ClickUpClientService clickUpClientService) {
+    public ContentItemMapper(ClickUpClientService clickUpClientService, AttributeMapper attributeMapper) {
         this.clickUpClientService = clickUpClientService;
+        this.attributeMapper = attributeMapper;
     }
 
     public ContentItemDTO toContentItemDTO(TaskComments.CommentItem commentItem) {
         ContentItemDTO contentItemDTO = new ContentItemDTO();
         contentItemDTO.setText(commentItem.text);
         contentItemDTO.setType(commentItem.type);
-        contentItemDTO.setAttributes(Objects.nonNull(commentItem.attributes) ? new AttributesDTO(commentItem.attributes) : null);
+        contentItemDTO.setAttributes(
+            Objects.nonNull(commentItem.attributes) ? attributeMapper.toAttributesDTO(commentItem.attributes) : null
+        );
         if (Objects.nonNull(commentItem.attachment)) {
             contentItemDTO.setUrl(commentItem.attachment.url);
             contentItemDTO.setAttachmentId(commentItem.attachment.id);
@@ -42,7 +46,9 @@ public class ContentItemMapper {
 
     ContentItemDTO toContentItemDTO(Profile profile, TaskContentItemData taskContentItemData) {
         ContentItemDTO contentItemDTO = new ContentItemDTO();
-        contentItemDTO.setAttributes(new AttributesDTO(taskContentItemData.attributes));
+        contentItemDTO.setAttributes(
+            Objects.nonNull(taskContentItemData.attributes) ? attributeMapper.toAttributesDTO(taskContentItemData.attributes) : null
+        );
         if (taskContentItemData.content instanceof String) {
             contentItemDTO.setText(taskContentItemData.content.toString());
         } else if (taskContentItemData.content instanceof HashMap) {

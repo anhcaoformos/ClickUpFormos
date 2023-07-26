@@ -7,24 +7,19 @@ import com.formos.service.dto.clickup.*;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class TaskMapper {
 
     private final CommentMapper commentMapper;
+    private final AttachmentMapper attachmentMapper;
+    private final SubtaskMapper subtaskMapper;
 
-    public TaskMapper(CommentMapper commentMapper) {
+    public TaskMapper(CommentMapper commentMapper, AttachmentMapper attachmentMapper, SubtaskMapper subtaskMapper) {
         this.commentMapper = commentMapper;
-    }
-
-    public TaskDTO toTaskDTO(Task task) {
-        TaskDTO taskDTO = new TaskDTO();
-        taskDTO.setId(task.id);
-        taskDTO.setName(task.name);
-        taskDTO.setStatus(Objects.nonNull(task.status) ? task.status.status : null);
-        taskDTO.setDescription(task.description);
-        taskDTO.setAttachments(task.attachments.stream().map(AttachmentDTO::new).collect(Collectors.toSet()));
-        return taskDTO;
+        this.attachmentMapper = attachmentMapper;
+        this.subtaskMapper = subtaskMapper;
     }
 
     public TaskDTO toTaskDTO(Profile profile, TaskData task, TaskHistory taskHistory) {
@@ -33,6 +28,15 @@ public class TaskMapper {
         taskDTO.setName(task.getName());
         taskDTO.setStatus(Objects.nonNull(task.getStatus()) ? task.getStatus().status.toUpperCase() : null);
         taskDTO.setStatusColor(Objects.nonNull(task.getStatus()) ? task.getStatus().color : null);
+        taskDTO.setCreator(Objects.nonNull(task.getCreator()) ? new UserDTO(task.getCreator()) : null);
+        taskDTO.setPriority(Objects.nonNull(task.getPriority()) ? task.getPriority().priority : null);
+        taskDTO.setPriorityColor(Objects.nonNull(task.getPriority()) ? task.getPriority().color : "none");
+        if (!CollectionUtils.isEmpty(task.getSubtasks())) {
+            taskDTO.setSubtasks(task.getSubtasks().stream().map(subtaskMapper::toSubtaskDTO).collect(Collectors.toList()));
+        }
+        if (!CollectionUtils.isEmpty(task.getTags())) {
+            taskDTO.setTags(task.getTags().stream().map(TagDTO::new).collect(Collectors.toList()));
+        }
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             TaskContentData contentData = objectMapper.readValue(task.getContent(), TaskContentData.class);
@@ -40,7 +44,7 @@ public class TaskMapper {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        taskDTO.setAttachments(task.getAttachments().stream().map(AttachmentDTO::new).collect(Collectors.toSet()));
+        taskDTO.setAttachments(task.getAttachments().stream().map(attachmentMapper::toAttachmentDTO).collect(Collectors.toSet()));
         return taskDTO;
     }
 }

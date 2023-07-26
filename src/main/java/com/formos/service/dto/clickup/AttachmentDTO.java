@@ -12,21 +12,7 @@ public class AttachmentDTO {
     private String dateTime;
     private boolean isImage;
 
-    public AttachmentDTO(TaskComments.Attachment attachment) {
-        this.id = attachment.id;
-        this.url = attachment.url;
-        this.title = attachment.title;
-        this.dateTime = CommonUtils.formatToDateTimeFromTimestamp(attachment.date, Constants.MMM_DD_AT_H_MM_A);
-        this.isImage = Constants.IMAGE_EXTENSION.contains(attachment.extension);
-    }
-
-    public AttachmentDTO(String dateTime, ContentItemDTO commentItem) {
-        this.id = commentItem.getAttachmentId();
-        this.url = commentItem.getUrl();
-        this.title = commentItem.getText();
-        this.dateTime = dateTime;
-        this.isImage = commentItem.isImage();
-    }
+    public AttachmentDTO() {}
 
     public String getId() {
         return id;

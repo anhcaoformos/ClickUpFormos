@@ -16,6 +16,10 @@ public class TaskData {
     String name;
     Task.Status status;
     String content;
+    TaskComments.User creator;
+    Task.Priority priority;
+    List<Task.Tag> tags;
+    List<Task.Subtask> subtasks;
 
     public String getId() {
         return id;
@@ -55,5 +59,37 @@ public class TaskData {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public TaskComments.User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(TaskComments.User creator) {
+        this.creator = creator;
+    }
+
+    public Task.Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Task.Priority priority) {
+        this.priority = priority;
+    }
+
+    public List<Task.Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Task.Tag> tags) {
+        this.tags = tags;
+    }
+
+    public List<Task.Subtask> getSubtasks() {
+        return subtasks;
+    }
+
+    public void setSubtasks(List<Task.Subtask> subtasks) {
+        this.subtasks = subtasks;
     }
 }

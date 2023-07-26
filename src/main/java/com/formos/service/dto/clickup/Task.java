@@ -23,9 +23,9 @@ public class Task {
     public ArrayList<Object> assignees;
     public ArrayList<Watcher> watchers;
     public ArrayList<Object> checklists;
-    public ArrayList<Object> tags;
+    public ArrayList<Tag> tags;
     public Object parent;
-    public Object priority;
+    public Priority priority;
     public long due_date;
     public long start_date;
     public Object points;
@@ -43,6 +43,49 @@ public class Task {
     public Folder folder;
     public Space space;
     public ArrayList<TaskComments.Attachment> attachments;
+    public ArrayList<Subtask> subtasks;
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Subtask {
+
+        public String id;
+        public String name;
+        public ArrayList<TaskComments.User> assignees;
+        public Priority priority;
+        public Status status;
+
+        @JsonProperty("due_date")
+        public String dueDate;
+
+        public ArrayList<Tag> tags;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Tag {
+
+        @JsonProperty("creator")
+        public long creatorId;
+
+        public String name;
+
+        @JsonProperty("tag_bg")
+        public String tagBackground;
+
+        @JsonProperty("tag_fg")
+        public String tagForeground;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Priority {
+
+        public String id;
+        public String color;
+
+        @JsonProperty("orderindex")
+        public String orderIndex;
+
+        public String priority;
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Creator {

@@ -10,9 +10,11 @@ import com.formos.repository.ProfileRepository;
 import com.formos.service.ClickUpClientService;
 import com.formos.service.ClickUpService;
 import com.formos.service.dto.clickup.*;
+import com.formos.service.mapper.AttachmentMapper;
 import com.formos.service.mapper.CommentMapper;
 import com.formos.service.mapper.TaskMapper;
 import com.formos.service.utils.FileUtils;
+import com.formos.web.rest.errors.BadRequestAlertException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -46,6 +48,7 @@ public class ClickUpServiceImpl implements ClickUpService {
     private final DownloadHistoryRepository downloadHistoryRepository;
     private final TaskMapper taskMapper;
     private final CommentMapper commentMapper;
+    private final AttachmentMapper attachmentMapper;
 
     @Value("${clickup.base-folder}")
     private String baseFolder;
@@ -57,7 +60,8 @@ public class ClickUpServiceImpl implements ClickUpService {
         ProfileRepository profileRepository,
         DownloadHistoryRepository downloadHistoryRepository,
         TaskMapper taskMapper,
-        CommentMapper commentMapper
+        CommentMapper commentMapper,
+        AttachmentMapper attachmentMapper
     ) {
         this.templateEngine = templateEngine;
         this.clickUpClientService = clickUpClientService;
@@ -66,6 +70,7 @@ public class ClickUpServiceImpl implements ClickUpService {
         this.downloadHistoryRepository = downloadHistoryRepository;
         this.taskMapper = taskMapper;
         this.commentMapper = commentMapper;
+        this.attachmentMapper = attachmentMapper;
     }
 
     @Override
@@ -125,7 +130,7 @@ public class ClickUpServiceImpl implements ClickUpService {
                         .getCommentItems()
                         .stream()
                         .filter(childItem -> Objects.nonNull(childItem.getAttachmentId()))
-                        .map(item -> new AttachmentDTO(comment.getDateTime(), item))
+                        .map(item -> attachmentMapper.toAttachmentDTO(comment.getDateTime(), item))
                 )
                 .collect(Collectors.toSet());
             taskDTO.addAttachments(attachmentDTOS);
@@ -149,10 +154,7 @@ public class ClickUpServiceImpl implements ClickUpService {
 
         exportPdf(taskDTO, saveDirectoryPath);
 
-        ZipFile zipFile = new ZipFile(saveDirectory + ".zip");
-        // Now add files to the zip file
-        zipFile.addFolder(new java.io.File(saveDirectory));
-        org.apache.commons.io.FileUtils.deleteQuietly(new java.io.File(saveDirectory));
+        taskHistory.setFolder(new java.io.File(saveDirectory));
 
         return taskHistory;
     }
@@ -182,8 +184,18 @@ public class ClickUpServiceImpl implements ClickUpService {
     }
 
     @Override
-    public void exportPdfForTasks(Long profileId, List<String> taskIds) throws Exception {
-        Profile profile = profileRepository.findById(profileId).orElseThrow(Exception::new);
+    public ZipFile exportPdfForTasks(Long profileId, List<String> taskIds) throws Exception {
+        Profile profile = profileRepository
+            .findById(profileId)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "profile", "idnotfound"));
+        ZipFile zipFile = new ZipFile(
+            FileUtils.getOutputDirectoryForTargetAndTimestamp(
+                baseFolder,
+                "profile_" + profileId,
+                String.valueOf(Instant.now().getEpochSecond())
+            ) +
+            ".zip"
+        );
         for (String taskId : taskIds) {
             TaskHistory taskHistory = exportPdfForTask(profile, taskId);
             if (Objects.nonNull(taskHistory)) {
@@ -197,12 +209,11 @@ public class ClickUpServiceImpl implements ClickUpService {
                 file.setRelativePath(taskHistory.getRelativePath());
                 file.setDownloadHistory(downloadHistory);
                 fileRepository.save(file);
+                zipFile.addFolder(taskHistory.getFolder());
+                org.apache.commons.io.FileUtils.deleteQuietly(taskHistory.getFolder());
             }
         }
-    }
-
-    private String getLastHistoryId(HistoryData historyData) {
-        return historyData.getHistory().get(0).id;
+        return zipFile;
     }
 
     private TokenResponse getTokenResponse(Profile profile) {

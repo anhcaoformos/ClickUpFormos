@@ -5,7 +5,6 @@ import static com.formos.config.Constants.MMM_DD_AT_H_MM_A;
 import com.formos.domain.Profile;
 import com.formos.service.dto.clickup.*;
 import com.formos.service.utils.CommonUtils;
-import com.formos.service.utils.FileUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,7 +74,7 @@ public class CommentMapper {
             String text = commentItem.getText();
             AttributesDTO attributes = commentItem.getAttributes();
             if (Objects.isNull(attributes) && Objects.isNull(commentItem.getType())) {
-                htmlBuilder.append(text);
+                blockBuilder.append(text);
             } else {
                 if (Objects.nonNull(attributes) && Objects.nonNull(attributes.getBlockId())) {
                     if (Objects.nonNull(attributes.getList()) && ("ordered".equals(attributes.getList()))) {
@@ -134,6 +133,8 @@ public class CommentMapper {
                         blockBuilder = appendTableHeader(blockBuilder, tableBuilder, beforeBlockType, attributes);
                         previousBlockItem = commentItem;
                         beforeBlockType = "tableHeader";
+                    } else if (Objects.nonNull(attributes.getDataId())) {
+                        appendImage(taskHistory, blockBuilder, commentItem, true);
                     } else {
                         applyAttributes(blockBuilder, text, attributes);
                     }
@@ -156,9 +157,14 @@ public class CommentMapper {
                         appendImage(taskHistory, blockBuilder, commentItem, true);
                     } else if ("taskMention".equals(commentItem.getType())) {
                         appendTaskMention(commentItem.getText(), commentItem.getUrl(), blockBuilder);
+                    } else if ("tag".equals(commentItem.getType())) {
+                        blockBuilder.append(text);
                     }
                 }
             }
+        }
+        if (!blockBuilder.isEmpty()) {
+            htmlBuilder.append(blockBuilder);
         }
         return htmlBuilder.toString();
     }
@@ -332,7 +338,7 @@ public class CommentMapper {
                 appendBlockQuote(blockBuilder).append(text).append("</div>");
             }
 
-            if (Objects.nonNull(attributes.getColor_class())) {
+            if (Objects.nonNull(attributes.getColorClass())) {
                 appendColorClass(blockBuilder, attributes).append(text).append("</span>");
             }
 
@@ -398,7 +404,7 @@ public class CommentMapper {
                 suffix.insert(0, "</blockquote>");
             }
 
-            if (Objects.nonNull(attributes.getColor_class())) {
+            if (Objects.nonNull(attributes.getColorClass())) {
                 appendColorClass(prefix, attributes);
                 suffix.insert(0, "</span>");
             }
@@ -484,7 +490,7 @@ public class CommentMapper {
     }
 
     private StringBuilder appendColorClass(StringBuilder blockBuilder, AttributesDTO attributes) {
-        return blockBuilder.append("<span style=\"color: ").append(attributes.getColor_class()).append(";\">");
+        return blockBuilder.append("<span style=\"color: ").append(attributes.getColorClass()).append(";\">");
     }
 
     private StringBuilder appendBlockQuote(StringBuilder blockBuilder) {
