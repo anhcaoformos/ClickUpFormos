@@ -68,7 +68,6 @@
       .comment_body {
         border: 1px solid #e9ebf0;
         border-radius: 8px;
-        padding-left: 10px;
       }
       .comment_container {
         border: 2px solid #e9ebf0;
@@ -110,6 +109,8 @@
       }
       .attachment_item {
         height: 160px;
+        width: 200px;
+        max-width: 100%;
         display: -webkit-box; /* wkhtmltopdf uses this one */
         display: flex;
         -webkit-box-pack: center; /* wkhtmltopdf uses this one */
@@ -219,8 +220,23 @@
         margin: 0 10px 0 0;
         padding: 0;
       }
-      .row_element {
+      .mr10px {
         margin-right: 10px;
+      }
+      .ml10px {
+        margin-left: 10px;
+      }
+      .mt_mb_10px {
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      .date_time {
+        font-size: 11px;
+        font-weight: 400;
+        flex-shrink: 0;
+        margin: 0 0 0 10px;
+        padding: 4px 0 0;
+        color: #abaeb0;
       }
     </style>
     <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js"></script>
@@ -233,14 +249,14 @@
   <body>
     <div class="container">
       <div class="row_start">
-        <div class="status row_element" th:style="${'background-color: ' + task.getStatusColor()}" th:text="${task.getStatus()}"></div>
+        <div class="status mr10px" th:style="${'background-color: ' + task.getStatusColor()}" th:text="${task.getStatus()}"></div>
         <div
-          class="user_header_img row_element"
+          class="user_header_img mr10px"
           th:text="${task.getCreator().getInitials()}"
           th:style="'background:' + ${task.getCreator().getColor()}"
         ></div>
-        <div class="separate_div row_element"></div>
-        <div class="row_element">
+        <div class="separate_div mr10px"></div>
+        <div class="mr10px">
           <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               fill-rule="evenodd"
@@ -254,7 +270,7 @@
       <hr style="margin: 20px" />
       <div class="row_start" th:if="${not #lists.isEmpty(task.getTags())}">
         <div
-          class="tag row_element"
+          class="tag mr10px"
           th:each="tag : ${task.getTags()}"
           th:style="'background: ' + ${tag.getTagBackground()} + '; text-color: ' + ${tag.getTagForeground()} + ';'"
           th:text="${tag.getName()}"
@@ -281,11 +297,11 @@
               class="subtask_status"
               th:style="'border: 1px solid ' + ${subtask.getStatusColor()} + '; background: ' + ${subtask.getStatusColor()} + ';'"
             ></div>
-            <div class="row_element" th:text="${subtask.getName()}"></div>
+            <div class="mr10px" th:text="${subtask.getName()}"></div>
             <div th:if="${not #lists.isEmpty(subtask.getAssignees())}" th:each="assignee : ${subtask.getAssignees()}">
               <div class="user_img" th:text="${assignee.getInitials()}" th:style="'background:' + ${assignee.getColor()}"></div>
             </div>
-            <div class="row_element">
+            <div class="mr10px">
               <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   fill-rule="evenodd"
@@ -295,8 +311,8 @@
                 />
               </svg>
             </div>
-            <div class="row_element" th:text="${subtask.getDueDate()}"></div>
-            <div class="row_element" th:if="${not #lists.isEmpty(subtask.getTags())}" th:each="tag : ${subtask.getTags()}">
+            <div class="mr10px" th:text="${subtask.getDueDate()}"></div>
+            <div class="mr10px" th:if="${not #lists.isEmpty(subtask.getTags())}" th:each="tag : ${subtask.getTags()}">
               <div
                 class="tag"
                 th:style="'background: ' + ${tag.getTagBackground()} + '; text-color: ' + ${tag.getTagForeground()} + ';'"
@@ -310,12 +326,12 @@
             <div th:if="${not #lists.isEmpty(checklist.getItems())}">
               <h3>Checklist</h3>
               <div th:each="checklistItem : ${checklist.getItems()}">
-                <div class="row_start">
-                  <input class="row_element" type="checkbox" th:checked="${checklistItem.getResolved()}" />
-                  <div class="row_element" th:text="${checklistItem.getName()}"></div>
+                <div class="row_start mt_mb_10px">
+                  <input class="mr10px" type="checkbox" th:checked="${checklistItem.getResolved()}" />
+                  <div class="mr10px" th:text="${checklistItem.getName()}"></div>
                   <div
                     th:if="${checklistItem.getAssignee() !=  null}"
-                    class="user_img row_element"
+                    class="user_img mr10px"
                     th:text="${checklistItem.getAssignee().getInitials()}"
                     th:style="'background:' + ${checklistItem.getAssignee().getColor()}"
                   ></div>
@@ -343,16 +359,20 @@
         <div id="comments">
           <h3>Comments:</h3>
           <div th:each="comment : ${task.getComments()}" class="comment_container page_break_inside">
-            <div class="comment_title">
-              <div
-                class="user_img"
-                th:text="${comment.getUser().getInitials()}"
-                th:style="'background:' + ${comment.getUser().getColor()}"
-              ></div>
-              <div><h5 th:text="|${comment.getUsername()}  (${comment.getDateTime()})|"></h5></div>
+            <div class="row">
+              <div class="comment_title">
+                <div
+                  class="user_img"
+                  th:text="${comment.getUser().getInitials()}"
+                  th:style="'background:' + ${comment.getUser().getColor()}"
+                ></div>
+                <h5 th:text="${comment.getUsername()}"></h5>
+              </div>
+              <div class="date_time"><h5 th:text="${comment.getDateTime()}"></h5></div>
             </div>
-            <div class="comment_body">
+            <div class="mt_mb_10px ml10px">
               <div th:utext="${comment.getHtmlText()}"></div>
+              <hr th:if="${comment.getResolved() != null}" />
               <div class="row" th:if="${comment.getResolved() != null}">
                 <div class="comment_title">
                   <div
@@ -363,8 +383,7 @@
                   <div>
                     <span
                       th:if="${comment.getAssignee().getUsername() != null}"
-                      th:text="|Assignee: ${comment.getAssignee().getUsername()}"
-                      |
+                      th:text="|Assignee: ${comment.getAssignee().getUsername()}|"
                     ></span>
                   </div>
                 </div>
@@ -396,23 +415,27 @@
                 </div>
               </div>
             </div>
-            <div th:if="${not #lists.isEmpty(comment.getChildren())}" class="separate_parent_children"></div>
+            <hr th:if="${not #lists.isEmpty(comment.getChildren())}" class="separate_parent_children" />
             <div
-              class="comment_body comment_child page_break_inside"
+              class="comment_body comment_child mr10px page_break_inside"
               th:if="${not #lists.isEmpty(comment.getChildren())}"
               th:each="child : ${comment.getChildren()}"
             >
-              <div class="comment_title">
-                <div
-                  class="user_img"
-                  th:text="${child.getUser().getInitials()}"
-                  th:style="'background:' + ${child.getUser().getColor()}"
-                ></div>
-                <div><h6 th:text="|${child.getUsername()}  (${child.getDateTime()})|"></h6></div>
+              <div class="row">
+                <div class="comment_title">
+                  <div
+                    class="user_img"
+                    th:text="${child.getUser().getInitials()}"
+                    th:style="'background:' + ${child.getUser().getColor()}"
+                  ></div>
+                  <h6 th:text="${child.getUsername()}"></h6>
+                </div>
+                <div class="date_time"><h6 th:text="${child.getDateTime()}"></h6></div>
               </div>
               <div>
                 <div th:utext="${child.getHtmlText()}"></div>
-                <div class="row" th:if="${child.getResolved() != null}">
+                <hr th:if="${child.getResolved() != null}" />
+                <div class="row">
                   <div class="comment_title">
                     <div
                       class="user_img"
