@@ -16,6 +16,7 @@ public class History {
     public String parentId;
 
     public TaskComments.User user;
+    public Data data;
 
     @Override
     public String toString() {
@@ -40,5 +41,12 @@ public class History {
             user +
             '}'
         );
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Data {
+
+        @JsonProperty("attachment_id")
+        public String attachmentId;
     }
 }

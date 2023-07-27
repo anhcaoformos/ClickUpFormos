@@ -49,9 +49,12 @@ public final class Constants {
     //        public static final String TASK_ENDPOINT = "https://app.clickup.com/tasks/v1/task/";
     //        public static final String REPLY_ENDPOINT = "https://app.clickup.com/comments/v2/comment";
 
+    public static final String ATTACHMENT_COMMENT = "attachment_comment";
+
     public static final Set<String> COMMENT_TYPES = Stream
-        .of("comment", "comment_assigned", "comment_resolved")
+        .of("comment", "comment_assigned", "comment_resolved", ATTACHMENT_COMMENT)
         .collect(Collectors.toSet());
+
     public static final String INPUT_TOKEN_FILE_NAME = "token.txt";
 
     // The input task ids

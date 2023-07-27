@@ -17,6 +17,7 @@ import com.formos.service.utils.FileUtils;
 import com.formos.web.rest.errors.BadRequestAlertException;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -103,7 +104,7 @@ public class ClickUpServiceImpl implements ClickUpService {
         for (History history : historyComments) {
             TaskComments.Comment comment = history.comment;
             if (Objects.isNull(map.get(comment.id))) {
-                map.put(comment.id, commentMapper.toCommentDTO(taskHistory, comment));
+                map.put(comment.id, commentMapper.toCommentDTO(taskHistory, history));
             }
         }
 
@@ -116,28 +117,23 @@ public class ClickUpServiceImpl implements ClickUpService {
             .collect(Collectors.toList());
         Collections.reverse(commentDTOs);
 
-        for (CommentDTO comment : commentDTOs) {
-            List<CommentDTO> children = clickUpClientService
-                .getChildrenComments(taskId, map, comment, profile.getBaseUrl() + Constants.REPLY_ENDPOINT, tokenHistory.getToken())
-                .comments.stream()
-                .map(commentChild -> commentMapper.processAddHistory(taskHistory, map, commentChild))
-                .collect(Collectors.toList());
-            Collections.reverse(children);
-            Set<AttachmentDTO> attachmentDTOS = children
-                .stream()
-                .flatMap(child ->
-                    child
-                        .getCommentItems()
-                        .stream()
-                        .filter(childItem -> Objects.nonNull(childItem.getAttachmentId()))
-                        .map(item -> attachmentMapper.toAttachmentDTO(comment.getDateTime(), item))
-                )
-                .collect(Collectors.toSet());
-            taskDTO.addAttachments(attachmentDTOS);
-            comment.addChildren(children);
-        }
-
+        addChildrenComments(profile, tokenHistory, taskHistory, map, taskDTO, commentDTOs);
         taskDTO.setComments(commentDTOs);
+
+        List<CommentDTO> highlightComments = commentDTOs
+            .stream()
+            .filter(commentDTO -> Objects.nonNull(commentDTO.getAssignee()))
+            .collect(Collectors.toList());
+        List<CommentDTO> attachmentComments = historyData
+            .getHistory()
+            .stream()
+            .filter(history -> Constants.ATTACHMENT_COMMENT.equals(history.field))
+            .map(history -> commentMapper.toCommentDTO(taskHistory, history))
+            .toList();
+        addChildrenComments(profile, tokenHistory, taskHistory, map, taskDTO, attachmentComments);
+        highlightComments.addAll(attachmentComments);
+        taskDTO.setHighlightComments(highlightComments);
+
         String saveDirectory = taskHistory.getFullPath();
         String saveDirectoryPath = saveDirectory + "\\/";
         taskDTO.setBaseImagePath(saveDirectoryPath);
@@ -157,6 +153,42 @@ public class ClickUpServiceImpl implements ClickUpService {
         taskHistory.setFolder(new java.io.File(saveDirectory));
 
         return taskHistory;
+    }
+
+    private void addChildrenComments(
+        Profile profile,
+        TokenHistory tokenHistory,
+        TaskHistory taskHistory,
+        Map<String, CommentDTO> map,
+        TaskDTO taskDTO,
+        List<CommentDTO> commentDTOs
+    ) throws URISyntaxException {
+        for (CommentDTO comment : commentDTOs) {
+            List<CommentDTO> children = clickUpClientService
+                .getChildrenComments(
+                    taskHistory.getTaskId(),
+                    map,
+                    comment,
+                    profile.getBaseUrl() + Constants.REPLY_ENDPOINT,
+                    tokenHistory.getToken()
+                )
+                .comments.stream()
+                .map(commentChild -> commentMapper.processAddHistory(taskHistory, map, commentChild))
+                .collect(Collectors.toList());
+            Collections.reverse(children);
+            Set<AttachmentDTO> attachmentDTOS = children
+                .stream()
+                .flatMap(child ->
+                    child
+                        .getCommentItems()
+                        .stream()
+                        .filter(childItem -> Objects.nonNull(childItem.getAttachmentId()))
+                        .map(item -> attachmentMapper.toAttachmentDTO(comment.getDateTime(), item))
+                )
+                .collect(Collectors.toSet());
+            taskDTO.addAttachments(attachmentDTOS);
+            comment.addChildren(children);
+        }
     }
 
     private TokenHistory getTokenAndHistory(Profile profile, String taskId) throws Exception {

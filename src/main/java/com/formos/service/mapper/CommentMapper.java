@@ -3,6 +3,7 @@ package com.formos.service.mapper;
 import static com.formos.config.Constants.MMM_DD_AT_H_MM_A;
 
 import com.formos.domain.Profile;
+import com.formos.service.ClickUpClientService;
 import com.formos.service.dto.clickup.*;
 import com.formos.service.utils.CommonUtils;
 import java.util.List;
@@ -15,12 +16,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class CommentMapper {
 
+    private final ClickUpClientService clickUpClientService;
     private final ContentItemMapper contentItemMapper;
 
     @Value("${clickup.base-folder}")
     private String baseFolder;
 
-    public CommentMapper(ContentItemMapper contentItemMapper) {
+    public CommentMapper(ClickUpClientService clickUpClientService, ContentItemMapper contentItemMapper) {
+        this.clickUpClientService = clickUpClientService;
         this.contentItemMapper = contentItemMapper;
     }
 
@@ -28,16 +31,25 @@ public class CommentMapper {
         CommentDTO commentDTO = new CommentDTO();
         commentDTO.setId(comment.id);
         commentDTO.setType(comment.type);
+        commentDTO.setRawText(comment.comment_text);
         commentDTO.setTimeStamp(Long.parseLong(comment.date));
         commentDTO.setDateTime(CommonUtils.formatToDateTimeFromTimestamp(comment.date, MMM_DD_AT_H_MM_A));
         commentDTO.setUsername(Objects.nonNull(comment.user) ? comment.user.username : null);
         commentDTO.setCommentItems(comment.commentDetails.stream().map(contentItemMapper::toContentItemDTO).collect(Collectors.toList()));
-        commentDTO.setUser(new UserDTO(comment.user));
-        commentDTO.setAssignedBy(new UserDTO(comment.assignedBy));
-        commentDTO.setAssignee(new UserDTO(comment.assignee));
-        commentDTO.setResolvedBy(new UserDTO(comment.resolvedBy));
+        commentDTO.setUser(Objects.nonNull(comment.user) ? new UserDTO(comment.user) : null);
+        commentDTO.setAssignedBy(Objects.nonNull(comment.assignedBy) ? new UserDTO(comment.assignedBy) : null);
+        commentDTO.setAssignee(Objects.nonNull(comment.assignee) ? new UserDTO(comment.assignee) : null);
+        commentDTO.setResolvedBy(Objects.nonNull(comment.resolvedBy) ? new UserDTO(comment.resolvedBy) : null);
         commentDTO.setResolved(comment.resolved);
         commentDTO.setHtmlText(buildHtml(taskHistory, commentDTO.getCommentItems()));
+        return commentDTO;
+    }
+
+    public CommentDTO toCommentDTO(TaskHistory taskHistory, History history) {
+        CommentDTO commentDTO = toCommentDTO(taskHistory, history.comment);
+        if (Objects.nonNull(history.data) && Objects.nonNull(history.data.attachmentId)) {
+            commentDTO.setCommentAttachmentId(history.data.attachmentId);
+        }
         return commentDTO;
     }
 

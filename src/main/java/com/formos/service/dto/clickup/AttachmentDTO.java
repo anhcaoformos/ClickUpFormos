@@ -1,7 +1,5 @@
 package com.formos.service.dto.clickup;
 
-import com.formos.config.Constants;
-import com.formos.service.utils.CommonUtils;
 import java.util.Objects;
 
 public class AttachmentDTO {

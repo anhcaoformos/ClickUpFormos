@@ -23,6 +23,8 @@ public class CommentDTO {
     private UserDTO assignee;
     private UserDTO resolvedBy;
     private Boolean resolved;
+    private String rawText;
+    private String commentAttachmentId;
     private String htmlText;
 
     public CommentDTO() {}
@@ -139,20 +141,36 @@ public class CommentDTO {
         this.resolved = resolved;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CommentDTO that = (CommentDTO) o;
-        return Objects.equals(id, that.id);
-    }
-
     public String getHtmlText() {
         return htmlText;
     }
 
     public void setHtmlText(String htmlText) {
         this.htmlText = htmlText;
+    }
+
+    public String getRawText() {
+        return rawText;
+    }
+
+    public void setRawText(String rawText) {
+        this.rawText = rawText;
+    }
+
+    public String getCommentAttachmentId() {
+        return commentAttachmentId;
+    }
+
+    public void setCommentAttachmentId(String commentAttachmentId) {
+        this.commentAttachmentId = commentAttachmentId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommentDTO that = (CommentDTO) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override

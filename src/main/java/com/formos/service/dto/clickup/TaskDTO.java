@@ -11,6 +11,7 @@ public class TaskDTO {
     private String statusColor;
     private String description;
     private List<CommentDTO> comments;
+    private List<CommentDTO> highlightComments;
     private Set<AttachmentDTO> attachments;
     private String baseImagePath;
     private UserDTO creator;
@@ -136,6 +137,14 @@ public class TaskDTO {
 
     public void setChecklists(List<ChecklistDTO> checklists) {
         this.checklists = checklists;
+    }
+
+    public List<CommentDTO> getHighlightComments() {
+        return highlightComments;
+    }
+
+    public void setHighlightComments(List<CommentDTO> highlightComments) {
+        this.highlightComments = highlightComments;
     }
 
     @Override
