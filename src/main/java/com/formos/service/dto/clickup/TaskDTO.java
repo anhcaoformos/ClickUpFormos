@@ -10,7 +10,7 @@ public class TaskDTO {
     private String status;
     private String statusColor;
     private String description;
-    private List<CommentDTO> comments;
+    private List<HistoryDTO> histories;
     private List<CommentDTO> highlightComments;
     private Set<AttachmentDTO> attachments;
     private String baseImagePath;
@@ -53,14 +53,6 @@ public class TaskDTO {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public List<CommentDTO> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<CommentDTO> comments) {
-        this.comments = comments;
     }
 
     public Set<AttachmentDTO> getAttachments() {
@@ -147,6 +139,14 @@ public class TaskDTO {
         this.highlightComments = highlightComments;
     }
 
+    public List<HistoryDTO> getHistories() {
+        return histories;
+    }
+
+    public void setHistories(List<HistoryDTO> histories) {
+        this.histories = histories;
+    }
+
     @Override
     public String toString() {
         return (
@@ -166,8 +166,6 @@ public class TaskDTO {
             ", description='" +
             description +
             '\'' +
-            ", comments=" +
-            comments +
             ", attachments=" +
             attachments +
             ", baseImagePath='" +

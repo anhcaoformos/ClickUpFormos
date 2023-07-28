@@ -162,7 +162,7 @@ public class CommentMapper {
                     } else if ("emoticon".equals(commentItem.getType())) {
                         blockBuilder.append("<span class=\"emoji\">").append(text).append("</span>");
                     } else if ("userMention".equals(commentItem.getType())) {
-                        blockBuilder.append(text);
+                        //                        blockBuilder.append(text);
                     } else if ("divider".equals(commentItem.getType())) {
                         blockBuilder.append("<hr>");
                     } else if ("taskImage".equals(commentItem.getType())) {

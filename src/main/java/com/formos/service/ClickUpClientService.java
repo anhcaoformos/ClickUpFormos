@@ -15,13 +15,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 
 public interface ClickUpClientService {
-    TaskComments getChildrenComments(
-        String taskId,
-        Map<String, CommentDTO> map,
-        CommentDTO comment,
-        String childrenCommentEndpoint,
-        Header token
-    ) throws URISyntaxException;
+    TaskComments getChildrenComments(String taskId, CommentDTO comment, String childrenCommentEndpoint, Header token)
+        throws URISyntaxException;
     <T> T getRequest(String endpoint, List<NameValuePair> parameters, Header header, Class<T> valueType) throws URISyntaxException;
 
     <T> T getResponse(Class<T> valueType, HttpClient httpClient, ObjectMapper objectMapper, HttpRequestBase request);

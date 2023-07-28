@@ -31,13 +31,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClickUpClientServiceImpl implements ClickUpClientService {
 
-    public TaskComments getChildrenComments(
-        String taskId,
-        Map<String, CommentDTO> map,
-        CommentDTO comment,
-        String childrenCommentEndpoint,
-        Header token
-    ) throws URISyntaxException {
+    public TaskComments getChildrenComments(String taskId, CommentDTO comment, String childrenCommentEndpoint, Header token)
+        throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("key", "2_" + comment.getId()));
         parameters.add(new BasicNameValuePair("parent", comment.getId()));

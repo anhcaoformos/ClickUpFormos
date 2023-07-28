@@ -254,14 +254,14 @@
         max-width: 700px;
       }
       .comment_attachment {
-        height: auto;
+        width: 100px;
+        height: 40px;
         background: #e9ebf0;
         align-items: center;
         border-radius: 3px;
       }
       .comment_attachment_image {
-        width: 40px;
-        height: 30px;
+        width: 85%;
       }
       .width100 {
         width: 100%;
@@ -345,7 +345,8 @@
         </div>
         <div id="highlightComments" th:if="${not #lists.isEmpty(task.getHighlightComments())}">
           <hr class="separate_sections" />
-          <div th:each="highlightComment : ${task.getHighlightComments()}">
+          <h2>Highlight Comments:</h2>
+          <div class="page_break_inside" th:each="highlightComment : ${task.getHighlightComments()}">
             <div class="row_start mt_mb_10px">
               <input class="mr10px" type="checkbox" th:checked="${highlightComment.getResolved()}" />
               <div
@@ -360,12 +361,9 @@
                 th:utext="${highlightComment.getRawText()}"
               ></div>
               <div th:if="${highlightComment.getCommentAttachmentId() != null}" class="comment_attachment">
-                <img
-                  class="comment_attachment_image"
-                  th:src="${task.getBaseImagePath() + '\\/' + highlightComment.getCommentAttachmentId()}"
-                />
+                <img class="width100" th:src="${task.getBaseImagePath() + '\\/' + highlightComment.getCommentAttachmentId()}" />
               </div>
-              <div class="mr10px width100" th:if="${highlightComment.getCommentAttachmentId() != null}">
+              <div class="mr10px comment_attachment_image" th:if="${highlightComment.getCommentAttachmentId() != null}">
                 <div class="row">
                   <div class="comment_title">
                     <div
@@ -493,7 +491,7 @@
           <hr class="separate_sections" />
           <div th:each="checklist : ${task.getChecklists()}">
             <div th:if="${not #lists.isEmpty(checklist.getItems())}" class="page_break_inside">
-              <h2>Checklist</h2>
+              <h2>Checklist:</h2>
               <div th:each="checklistItem : ${checklist.getItems()}">
                 <div class="row_start mt_mb_10px">
                   <input class="mr10px" type="checkbox" th:checked="${checklistItem.getResolved()}" />
