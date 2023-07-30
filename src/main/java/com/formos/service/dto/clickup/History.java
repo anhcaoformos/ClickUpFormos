@@ -14,6 +14,7 @@ public class History {
     public TaskComments.Comment comment;
     public List<TaskComments.Attachment> attachments;
     public String field;
+    public int count;
 
     @JsonProperty("parent_id")
     public String parentId;
@@ -22,7 +23,11 @@ public class History {
     public Data data;
     public String date;
     public Task.Checklist checklist;
+
+    @JsonProperty("checklist_item")
     public Task.ChecklistItem checklistItem;
+
+    @JsonProperty("checklist_items")
     public List<Task.ChecklistItem> checklistItems;
 
     @Override

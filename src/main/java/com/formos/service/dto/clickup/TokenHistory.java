@@ -1,15 +1,16 @@
 package com.formos.service.dto.clickup;
 
+import java.util.List;
 import org.apache.http.Header;
 
 public class TokenHistory {
 
     private Header token;
-    private HistoryData historyData;
+    private List<History> histories;
 
-    public TokenHistory(Header token, HistoryData historyData) {
+    public TokenHistory(Header token, List<History> histories) {
         this.token = token;
-        this.historyData = historyData;
+        this.histories = histories;
     }
 
     public Header getToken() {
@@ -20,11 +21,11 @@ public class TokenHistory {
         this.token = token;
     }
 
-    public HistoryData getHistoryData() {
-        return historyData;
+    public List<History> getHistories() {
+        return histories;
     }
 
-    public void setHistoryData(HistoryData historyData) {
-        this.historyData = historyData;
+    public void setHistories(List<History> histories) {
+        this.histories = histories;
     }
 }

@@ -13,9 +13,9 @@ public enum HistoryField {
     SECTION_MOVED,
     ATTACHMENTS;
 
-    public static boolean isCommentType(HistoryField historyField) {
-        return Constants.COMMENT_TYPES.contains(historyField);
-    }
+    //    public static boolean isCommentType(HistoryField historyField) {
+    //        return Constants.COMMENT_TYPES.contains(historyField);
+    //    }
 
     public static HistoryField getValueFrom(String historyField) {
         return valueOf(historyField.toUpperCase());

@@ -8,8 +8,8 @@ public class ChecklistDTO {
     private String name;
     private Long orderIndex;
     private long creatorId;
-    private long resolved;
-    private long unresolved;
+    private boolean resolved;
+    private boolean unresolved;
     private List<ChecklistItemDTO> items;
 
     public ChecklistDTO() {}
@@ -46,19 +46,19 @@ public class ChecklistDTO {
         this.creatorId = creatorId;
     }
 
-    public long getResolved() {
+    public boolean getResolved() {
         return resolved;
     }
 
-    public void setResolved(long resolved) {
+    public void setResolved(boolean resolved) {
         this.resolved = resolved;
     }
 
-    public long getUnresolved() {
+    public boolean getUnresolved() {
         return unresolved;
     }
 
-    public void setUnresolved(long unresolved) {
+    public void setUnresolved(boolean unresolved) {
         this.unresolved = unresolved;
     }
 

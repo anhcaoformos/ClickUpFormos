@@ -24,6 +24,8 @@ public interface ClickUpClientService {
 
     HistoryData getHistories(String historyEndpoint, Header token) throws URISyntaxException;
 
+    HistoryData getCollapsedHistories(String historyEndpoint, Header header, String startId, String endId) throws URISyntaxException;
+
     TaskData getTask(String taskEnpoint, Header token) throws URISyntaxException;
 
     String getTaskTitle(Profile profile, String taskId);

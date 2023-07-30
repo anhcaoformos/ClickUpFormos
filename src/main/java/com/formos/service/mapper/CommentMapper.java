@@ -31,7 +31,8 @@ public class CommentMapper {
         CommentDTO commentDTO = new CommentDTO();
         commentDTO.setId(comment.id);
         commentDTO.setType(comment.type);
-        commentDTO.setRawText(comment.comment_text);
+        commentDTO.setCommentText(comment.comment_text);
+        commentDTO.setTextComment(comment.text_content);
         commentDTO.setTimeStamp(Long.parseLong(comment.date));
         commentDTO.setDateTime(CommonUtils.formatToDateTimeFromTimestamp(comment.date, MMM_DD_AT_H_MM_A));
         commentDTO.setUsername(Objects.nonNull(comment.user) ? comment.user.username : null);

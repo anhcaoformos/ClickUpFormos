@@ -29,14 +29,11 @@ public class HistoryMapper {
     public HistoryDTO toHistoryDTO(TaskHistory taskHistory, History history) {
         HistoryDTO historyDTO = new HistoryDTO();
         historyDTO.setId(history.id);
-        //        historyDTO.setAttachments(CollectionUtils.isEmpty(history.attachments) ? new ArrayList<>() : history.attachments.stream().map(attachmentMapper::toAttachmentDTO).collect(Collectors.toList()));
         historyDTO.setType(history.type);
-        //        historyDTO.setBefore(history.before);
-        //        historyDTO.setAfter(history.after);
         historyDTO.setField(history.field);
         historyDTO.setDate(CommonUtils.formatToDateTimeFromTimestamp(history.date, Constants.MMM_DD_AT_H_MM_A));
         historyDTO.setUser(Objects.nonNull(history.user) ? new UserDTO(history.user) : null);
-        if (("comment".equals(history.field) || "attachment_comment".equals(history.field)) && Objects.nonNull(history.comment)) {
+        if (Constants.COMMENT_TYPES.contains(history.field) && Objects.nonNull(history.comment)) {
             historyDTO.setComment(commentMapper.toCommentDTO(taskHistory, history.comment));
         }
         historyDTO.setDescription(buildDescription(taskHistory, history));
@@ -128,6 +125,18 @@ public class HistoryMapper {
         return changeNameDescription.toString();
     }
 
+    private String getPriorityDescription(History history) {
+        StringBuilder priorityDescription = new StringBuilder();
+        if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
+            priorityDescription.append(history.user.username);
+            priorityDescription.append(" set priority to ");
+            Gson gson = new Gson();
+            JsonObject priority = gson.toJsonTree(history.after).getAsJsonObject();
+            priorityDescription.append(CommonUtils.getStringPropertyOfJsonObject(priority, "priority"));
+        }
+        return priorityDescription.toString();
+    }
+
     private String getDueDateDescription(History history) {
         StringBuilder dueDateDescription = new StringBuilder();
         if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
@@ -162,7 +171,13 @@ public class HistoryMapper {
         StringBuilder checklistItemResolvedDescription = new StringBuilder();
         if (Objects.nonNull(history.user) && Objects.nonNull(history.checklist) && Objects.nonNull(history.checklistItem)) {
             checklistItemResolvedDescription.append(history.user.username);
-            checklistItemResolvedDescription.append(" checked ");
+            if (history.after instanceof String) {
+                if (Boolean.TRUE.equals(Boolean.valueOf(history.after.toString()))) {
+                    checklistItemResolvedDescription.append(" checked ");
+                } else {
+                    checklistItemResolvedDescription.append(" unchecked ");
+                }
+            }
             checklistItemResolvedDescription.append(history.checklistItem.name);
             checklistItemResolvedDescription.append(" in ");
             checklistItemResolvedDescription.append(history.checklist.name);

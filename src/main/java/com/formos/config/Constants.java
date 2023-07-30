@@ -34,6 +34,7 @@ public final class Constants {
         )
         .collect(Collectors.toSet());
 
+    public static final Set<String> COMMENT_TYPES = Stream.of("comment", "attachment_comment").collect(Collectors.toSet());
     public static final String YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
     public static final String MMM_DD_AT_H_MM_A = "MMM dd 'at' h:mm a";
 
@@ -51,9 +52,7 @@ public final class Constants {
 
     public static final String ATTACHMENT_COMMENT = "attachment_comment";
 
-    public static final Set<String> COMMENT_TYPES = Stream
-        .of("comment", "comment_assigned", "comment_resolved", ATTACHMENT_COMMENT)
-        .collect(Collectors.toSet());
+    public static final Set<String> HIGHLIGHT_COMMENT_TYPES = Stream.of("comment_assigned", "comment_resolved").collect(Collectors.toSet());
 
     public static final String INPUT_TOKEN_FILE_NAME = "token.txt";
 

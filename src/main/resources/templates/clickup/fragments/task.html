@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <th:block th:fragment="task">
+    <div id="task">
+      <div class="task_body">
+        <div class="row">
+          <div>
+            <h2 th:utext="${task.getName()}"></h2>
+          </div>
+        </div>
+        <div>
+          <p th:utext="${task.getDescription()}"></p>
+        </div>
+      </div>
+    </div>
+  </th:block>
+</html>

@@ -1,13 +1,8 @@
 package com.formos.service.dto.clickup;
 
-import static com.formos.config.Constants.MMM_DD_AT_H_MM_A;
-
-import com.formos.service.utils.CommonUtils;
-import com.formos.service.utils.FileUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class CommentDTO {
 
@@ -23,7 +18,9 @@ public class CommentDTO {
     private UserDTO assignee;
     private UserDTO resolvedBy;
     private Boolean resolved;
-    private String rawText;
+    private String commentText;
+
+    private String textComment;
     private String commentAttachmentId;
     private String htmlText;
 
@@ -149,12 +146,12 @@ public class CommentDTO {
         this.htmlText = htmlText;
     }
 
-    public String getRawText() {
-        return rawText;
+    public String getCommentText() {
+        return commentText;
     }
 
-    public void setRawText(String rawText) {
-        this.rawText = rawText;
+    public void setCommentText(String commentText) {
+        this.commentText = commentText;
     }
 
     public String getCommentAttachmentId() {
@@ -163,6 +160,14 @@ public class CommentDTO {
 
     public void setCommentAttachmentId(String commentAttachmentId) {
         this.commentAttachmentId = commentAttachmentId;
+    }
+
+    public String getTextComment() {
+        return textComment;
+    }
+
+    public void setTextComment(String textComment) {
+        this.textComment = textComment;
     }
 
     @Override

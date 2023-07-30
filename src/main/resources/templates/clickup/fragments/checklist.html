@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <th:block th:fragment="checklist">
+    <div id="checklists" th:if="${not #lists.isEmpty(task.getChecklists())}">
+      <hr class="separate_sections" />
+      <div th:each="checklist : ${task.getChecklists()}">
+        <div th:if="${not #lists.isEmpty(checklist.getItems())}" class="page_break_inside">
+          <h2>Checklist:</h2>
+          <div th:each="checklistItem : ${checklist.getItems()}">
+            <div class="row_start mt_mb_10px">
+              <input class="mr10px" type="checkbox" th:checked="${checklistItem.getResolved()}" />
+              <div class="mr10px" th:text="${checklistItem.getName()}"></div>
+              <div
+                th:if="${checklistItem.getAssignee() !=  null}"
+                class="user_img mr10px"
+                th:text="${checklistItem.getAssignee().getInitials()}"
+                th:style="'background:' + ${checklistItem.getAssignee().getColor()}"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+</html>

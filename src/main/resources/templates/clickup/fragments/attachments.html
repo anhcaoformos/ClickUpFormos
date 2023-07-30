@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <th:block th:fragment="attachments">
+    <div id="attachments" th:if="${not #sets.isEmpty(task.getAttachments())}">
+      <hr class="separate_sections" />
+      <h2>Attachments:</h2>
+      <div class="attachment_body page_break_inside">
+        <div class="attachment_grid">
+          <div class="attachment_card" th:each="attachment : ${task.getAttachments()}">
+            <div class="attachment_item">
+              <a th:if="${not attachment.isImage()}" th:href="${attachment.getId()}" th:text="${attachment.getTitle()}"></a>
+              <a class="block_image_attachment" th:if="${attachment.isImage()}" th:href="${attachment.getId()}">
+                <img class="attachment_image page_break_inside" th:src="${task.getBaseImagePath() + '\\' + attachment.getId()}" />
+              </a>
+            </div>
+            <h6 class="attachment_title" th:text="${attachment.getDateTime()}"></h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+</html>

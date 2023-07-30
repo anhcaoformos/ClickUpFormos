@@ -57,8 +57,8 @@ public class Task {
         @JsonProperty("creator")
         public long creatorId;
 
-        public long resolved;
-        public long unresolved;
+        public boolean resolved;
+        public boolean unresolved;
         public ArrayList<ChecklistItem> items;
     }
 

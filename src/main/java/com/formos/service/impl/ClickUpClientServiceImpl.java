@@ -165,6 +165,84 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         return getRequest(historyEndpoint, parameters, token, HistoryData.class);
     }
 
+    public HistoryData getCollapsedHistories(String historyEndpoint, Header token, String startId, String endId) throws URISyntaxException {
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("contracted_view", Boolean.FALSE.toString()));
+        parameters.add(new BasicNameValuePair("reverse", Boolean.FALSE.toString()));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "tag"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "tag_removed"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "time_spent"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "dependency_of"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "resolved_items"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "depends_on"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "checklist_items_added"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "checklist_item_assignee"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "checklist_item_resolved"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "priority"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "status"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "assignee"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "follower"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "time_estimate"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "content"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "name"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "task_creation"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "section_moved"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "new_subtask"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "duplicate"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "template_merged"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "due_date"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "start_date"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "comment_resolved"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "comment_assigned"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "new_activity"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "comment"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "email_comment"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "collapsed_items"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "gh_commit"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "attachments"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "gl_commit"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "gl_issue"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "gl_merge_request"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "recurrence_set"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "recurrence_set_2.0"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "recur"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "recur_2.0"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "recurrence_removed"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "copy_task_recur"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "recurrence_missed"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "github_pull_request"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_commit"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_pr_created"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_pr_updated"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_pr_approved"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_pr_unapproved"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_pr_fulfilled"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_pr_rejected"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_issue"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_issue_updated"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "gl_task_branch"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "gh_task_branch"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "linked_task"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "custom_fields"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "zoom_meeting"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "attachment_comment"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "group_assignee"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "custom_type"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_task_branch"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "bb_pull_request"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "points"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "added_to_subcategory"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "removed_from_subcategory"));
+        parameters.add(new BasicNameValuePair("hist_fields[]", "hubspot"));
+        if (Objects.nonNull(startId)) {
+            parameters.add(new BasicNameValuePair("start_id", startId));
+        }
+        if (Objects.nonNull(endId)) {
+            parameters.add(new BasicNameValuePair("end_id", endId));
+        }
+        return getRequest(historyEndpoint, parameters, token, HistoryData.class);
+    }
+
     public TaskData getTask(String taskEnpoint, Header token) throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("include_groups", Boolean.TRUE.toString()));

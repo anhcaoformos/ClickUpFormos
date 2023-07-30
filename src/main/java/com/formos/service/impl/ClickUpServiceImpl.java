@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.util.StringUtils;
@@ -97,15 +98,16 @@ public class ClickUpServiceImpl implements ClickUpService {
         TaskData taskData = clickUpClientService.getTask(taskEndpoint, tokenHistory.getToken());
         TaskHistory taskHistory = new TaskHistory(baseFolder, taskId, currentTime);
 
-        HistoryData historyData = tokenHistory.getHistoryData();
+        List<History> histories = tokenHistory.getHistories();
 
         TaskDTO taskDTO = taskMapper.toTaskDTO(profile, taskData, taskHistory);
-        List<HistoryDTO> histories = historyData
-            .getHistory()
+        Map<String, CommentDTO> map = new LinkedHashMap<>();
+        List<CommentDTO> allComments = new ArrayList<>();
+        List<HistoryDTO> historyDTOs = histories
             .stream()
             .map(history -> {
                 HistoryDTO historyDTO = historyMapper.toHistoryDTO(taskHistory, history);
-                if ("comment".equals(historyDTO.getField()) || "attachment_comment".equals(historyDTO.getField())) {
+                if (Constants.COMMENT_TYPES.contains(historyDTO.getField())) {
                     try {
                         List<CommentDTO> children = clickUpClientService
                             .getChildrenComments(
@@ -118,15 +120,32 @@ public class ClickUpServiceImpl implements ClickUpService {
                             .map(comment -> commentMapper.toCommentDTO(taskHistory, comment))
                             .collect(Collectors.toList());
                         historyDTO.getComment().addChildren(children);
+                        allComments.add(historyDTO.getComment());
+                        allComments.addAll(historyDTO.getComment().getChildren());
+                        if ("attachment_comment".equals(historyDTO.getField())) {
+                            if (Objects.isNull(map.get(history.comment.id))) {
+                                map.put(history.comment.id, historyDTO.getComment());
+                            }
+                        }
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
+                    }
+                } else if (Constants.HIGHLIGHT_COMMENT_TYPES.contains(historyDTO.getField())) {
+                    if (Objects.isNull(map.get(history.comment.id))) {
+                        map.put(history.comment.id, commentMapper.toCommentDTO(taskHistory, history));
                     }
                 }
 
                 return historyDTO;
             })
             .toList();
-        taskDTO.setHistories(histories);
+        taskDTO.setHistories(historyDTOs);
+        List<CommentDTO> highlightComments = allComments
+            .stream()
+            .filter(commentDTO -> map.containsKey(commentDTO.getId()))
+            .sorted(Comparator.comparing(CommentDTO::getTimeStamp))
+            .collect(Collectors.toList());
+        taskDTO.setHighlightComments(highlightComments);
         /*List<History> historyComments = historyData
             .getHistory()
             .stream()
@@ -167,7 +186,7 @@ public class ClickUpServiceImpl implements ClickUpService {
         //                e.printStackTrace();
         //            }
         //        });
-        taskDTO.setHistories(histories);
+        //        taskDTO.setHistories(historieDTOs);
 
         //        List<CommentDTO> highlightComments = commentDTOs
         //            .stream()
@@ -186,20 +205,20 @@ public class ClickUpServiceImpl implements ClickUpService {
         String saveDirectory = taskHistory.getFullPath();
         String saveDirectoryPath = saveDirectory + "\\/";
         taskDTO.setBaseImagePath(saveDirectoryPath);
-        //        FileUtils.createPathIfNotExists(saveDirectoryPath);
-        //        taskDTO
-        //            .getAttachments()
-        //            .forEach(attachmentDTO -> {
-        //                try {
-        //                    FileUtils.downloadFile(attachmentDTO.getUrl(), saveDirectoryPath, attachmentDTO.getId());
-        //                } catch (MalformedURLException e) {
-        //                    e.printStackTrace();
-        //                }
-        //            });
-        //
-        //        exportPdf(taskDTO, saveDirectoryPath);
-        //
-        //        taskHistory.setFolder(new java.io.File(saveDirectory));
+        FileUtils.createPathIfNotExists(saveDirectoryPath);
+        taskDTO
+            .getAttachments()
+            .forEach(attachmentDTO -> {
+                try {
+                    FileUtils.downloadFile(attachmentDTO.getUrl(), saveDirectoryPath, attachmentDTO.getId());
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            });
+
+        exportPdf(taskDTO, saveDirectoryPath);
+
+        taskHistory.setFolder(new java.io.File(saveDirectory));
 
         return taskHistory;
     }
@@ -261,7 +280,53 @@ public class ClickUpServiceImpl implements ClickUpService {
         if (Objects.isNull(historyData) || tryTime > 1) {
             return null;
         }
-        return new TokenHistory(tokenHeader, historyData);
+        List<History> histories = historyData.getHistory();
+        List<History> allHistories = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(histories)) {
+            explore(historyEndpoint, tokenHeader, allHistories, histories);
+        }
+
+        return new TokenHistory(tokenHeader, allHistories);
+    }
+
+    private void explore(String historyEndpoint, Header tokenHeader, List<History> allHistories, List<History> histories)
+        throws URISyntaxException {
+        int index = 0;
+        while (index < histories.size()) {
+            if ("collapsed_items".equals(histories.get(index).field)) {
+                int count = histories.get(index).count;
+                String startId = null;
+                String endId = null;
+                if (index > 0) {
+                    startId = histories.get(index - 1).id;
+                }
+                if (index < histories.size() - 1) {
+                    endId = histories.get(index + 1).id;
+                }
+                HistoryData collapsedHistoryData = clickUpClientService.getCollapsedHistories(historyEndpoint, tokenHeader, startId, endId);
+                if (Objects.nonNull(collapsedHistoryData) && !CollectionUtils.isEmpty(collapsedHistoryData.getHistory())) {
+                    List<History> collapsedHistories = collapsedHistoryData.getHistory();
+                    explore(historyEndpoint, tokenHeader, allHistories, collapsedHistoryData.getHistory());
+                    if (count > 10) {
+                        startId = collapsedHistories.get(collapsedHistories.size() - 1).id;
+                        HistoryData collapsedHistoryNestedData = clickUpClientService.getCollapsedHistories(
+                            historyEndpoint,
+                            tokenHeader,
+                            startId,
+                            endId
+                        );
+                        if (
+                            Objects.nonNull(collapsedHistoryNestedData) && !CollectionUtils.isEmpty(collapsedHistoryNestedData.getHistory())
+                        ) {
+                            explore(historyEndpoint, tokenHeader, allHistories, collapsedHistoryNestedData.getHistory());
+                        }
+                    }
+                }
+            } else {
+                allHistories.add(histories.get(index));
+            }
+            index++;
+        }
     }
 
     @Override
