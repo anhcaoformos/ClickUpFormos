@@ -92,7 +92,7 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         return getResponse(valueType, httpClient, objectMapper, request);
     }
 
-    public HistoryData getHistories(String historyEndpoint, Header token) throws URISyntaxException {
+    public HistoryData getHistories(String historyEndpoint, Header token, String startId) throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("contracted_view", Boolean.TRUE.toString()));
         parameters.add(new BasicNameValuePair("reverse", Boolean.FALSE.toString()));
@@ -162,6 +162,9 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         parameters.add(new BasicNameValuePair("hist_fields[]", "removed_from_subcategory"));
         parameters.add(new BasicNameValuePair("hist_fields[]", "hubspot"));
         parameters.add(new BasicNameValuePair("email_filter_flag", Boolean.TRUE.toString()));
+        if (Objects.nonNull(startId)) {
+            parameters.add(new BasicNameValuePair("start_id", startId));
+        }
         return getRequest(historyEndpoint, parameters, token, HistoryData.class);
     }
 

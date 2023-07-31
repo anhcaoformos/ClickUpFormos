@@ -34,7 +34,7 @@
               <div class="date_time"><h5 th:text="${highlightComment.getDateTime()}"></h5></div>
             </div>
             <div class="mt_mb_10px ml10px">
-              <div th:utext="${highlightComment.getHtmlText()}"></div>
+              <!--              <div th:utext="${highlightComment.getHtmlText()}"></div>-->
               <hr th:if="${highlightComment.getAssignee() != null}" />
               <div class="row_start" th:if="${highlightComment.getAssignee() != null}">
                 <div class="comment_title assignee_item" th:if="${highlightComment.getAssignee() != null}">
@@ -78,69 +78,69 @@
                 </div>
               </div>
             </div>
-            <hr th:if="${not #lists.isEmpty(highlightComment.getChildren())}" class="separate_sections" />
-            <div
-              class="comment_body comment_child mr10px page_break_inside pl10px pr10px"
-              th:if="${not #lists.isEmpty(highlightComment.getChildren())}"
-              th:each="child : ${highlightComment.getChildren()}"
-            >
-              <div class="row">
-                <div class="comment_title">
-                  <div
-                    class="user_img"
-                    th:text="${child.getUser().getInitials()}"
-                    th:style="'background:' + ${child.getUser().getColor()}"
-                  ></div>
-                  <h6 th:text="${child.getUsername()}"></h6>
-                </div>
-                <div class="date_time"><h6 th:text="${child.getDateTime()}"></h6></div>
-              </div>
-              <div>
-                <div th:utext="${child.getHtmlText()}"></div>
-                <hr th:if="${child.getAssignee() != null}" />
-                <div class="row_start" th:if="${child.getAssignee() != null}">
-                  <div class="comment_title assignee_item" th:if="${child.getAssignee() != null}">
-                    <div
-                      class="user_img"
-                      th:text="${child.getAssignee().getInitials()}"
-                      th:style="'background:' + ${child.getAssignee().getColor()}"
-                    ></div>
-                    <div>
-                      <span
-                        th:if="${child.getAssignee().getUsername() != null}"
-                        th:text="|Assignee: ${child.getAssignee().getUsername()}|"
-                      ></span>
-                    </div>
-                  </div>
-                  <div class="comment_title assignee_item" th:if="${child.getAssignedBy() != null}">
-                    <div
-                      class="user_img"
-                      th:text="${child.getAssignedBy().getInitials()}"
-                      th:style="'background:' + ${child.getAssignedBy().getColor()}"
-                    ></div>
-                    <div>
-                      <span
-                        th:if="${child.getAssignedBy().getUsername() != null}"
-                        th:text="|Assigned By: ${child.getAssignedBy().getUsername()}|"
-                      ></span>
-                    </div>
-                  </div>
-                  <div class="comment_title assignee_item" th:if="${child.getResolvedBy() != null}">
-                    <div
-                      class="user_img"
-                      th:text="${child.getResolvedBy().getInitials()}"
-                      th:style="'background:' + ${child.getResolvedBy().getColor()}"
-                    ></div>
-                    <div>
-                      <span
-                        th:if="${child.getResolvedBy().getUsername() != null}"
-                        th:text="|Resolved By: ${child.getResolvedBy().getUsername()}|"
-                      ></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!--            <hr th:if="${not #lists.isEmpty(highlightComment.getChildren())}" class="separate_sections" />-->
+            <!--            <div-->
+            <!--              class="comment_body comment_child mr10px page_break_inside pl10px pr10px"-->
+            <!--              th:if="${not #lists.isEmpty(highlightComment.getChildren())}"-->
+            <!--              th:each="child : ${highlightComment.getChildren()}"-->
+            <!--            >-->
+            <!--              <div class="row">-->
+            <!--                <div class="comment_title">-->
+            <!--                  <div-->
+            <!--                    class="user_img"-->
+            <!--                    th:text="${child.getUser().getInitials()}"-->
+            <!--                    th:style="'background:' + ${child.getUser().getColor()}"-->
+            <!--                  ></div>-->
+            <!--                  <h6 th:text="${child.getUsername()}"></h6>-->
+            <!--                </div>-->
+            <!--                <div class="date_time"><h6 th:text="${child.getDateTime()}"></h6></div>-->
+            <!--              </div>-->
+            <!--              <div>-->
+            <!--                <div th:utext="${child.getHtmlText()}"></div>-->
+            <!--                <hr th:if="${child.getAssignee() != null}" />-->
+            <!--                <div class="row_start" th:if="${child.getAssignee() != null}">-->
+            <!--                  <div class="comment_title assignee_item" th:if="${child.getAssignee() != null}">-->
+            <!--                    <div-->
+            <!--                      class="user_img"-->
+            <!--                      th:text="${child.getAssignee().getInitials()}"-->
+            <!--                      th:style="'background:' + ${child.getAssignee().getColor()}"-->
+            <!--                    ></div>-->
+            <!--                    <div>-->
+            <!--                      <span-->
+            <!--                        th:if="${child.getAssignee().getUsername() != null}"-->
+            <!--                        th:text="|Assignee: ${child.getAssignee().getUsername()}|"-->
+            <!--                      ></span>-->
+            <!--                    </div>-->
+            <!--                  </div>-->
+            <!--                  <div class="comment_title assignee_item" th:if="${child.getAssignedBy() != null}">-->
+            <!--                    <div-->
+            <!--                      class="user_img"-->
+            <!--                      th:text="${child.getAssignedBy().getInitials()}"-->
+            <!--                      th:style="'background:' + ${child.getAssignedBy().getColor()}"-->
+            <!--                    ></div>-->
+            <!--                    <div>-->
+            <!--                      <span-->
+            <!--                        th:if="${child.getAssignedBy().getUsername() != null}"-->
+            <!--                        th:text="|Assigned By: ${child.getAssignedBy().getUsername()}|"-->
+            <!--                      ></span>-->
+            <!--                    </div>-->
+            <!--                  </div>-->
+            <!--                  <div class="comment_title assignee_item" th:if="${child.getResolvedBy() != null}">-->
+            <!--                    <div-->
+            <!--                      class="user_img"-->
+            <!--                      th:text="${child.getResolvedBy().getInitials()}"-->
+            <!--                      th:style="'background:' + ${child.getResolvedBy().getColor()}"-->
+            <!--                    ></div>-->
+            <!--                    <div>-->
+            <!--                      <span-->
+            <!--                        th:if="${child.getResolvedBy().getUsername() != null}"-->
+            <!--                        th:text="|Resolved By: ${child.getResolvedBy().getUsername()}|"-->
+            <!--                      ></span>-->
+            <!--                    </div>-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--              </div>-->
+            <!--            </div>-->
           </div>
         </div>
       </div>

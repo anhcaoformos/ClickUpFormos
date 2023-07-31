@@ -34,7 +34,7 @@ public class HistoryMapper {
         historyDTO.setDate(CommonUtils.formatToDateTimeFromTimestamp(history.date, Constants.MMM_DD_AT_H_MM_A));
         historyDTO.setUser(Objects.nonNull(history.user) ? new UserDTO(history.user) : null);
         if (Constants.COMMENT_TYPES.contains(history.field) && Objects.nonNull(history.comment)) {
-            historyDTO.setComment(commentMapper.toCommentDTO(taskHistory, history.comment));
+            historyDTO.setComment(commentMapper.toCommentDTO(taskHistory, history));
         }
         historyDTO.setDescription(buildDescription(taskHistory, history));
         return historyDTO;

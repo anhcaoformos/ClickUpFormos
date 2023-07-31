@@ -231,12 +231,12 @@ public class ClickUpServiceImpl implements ClickUpService {
             if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
                 TokenResponse tokenResponse = getTokenResponse(profile);
                 tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
-                historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader);
+                historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader, null);
                 profile.setToken(tokenResponse.token);
                 profileRepository.saveAndFlush(profile);
             } else {
                 tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
-                historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader);
+                historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader, null);
             }
             tryTime++;
         } while (tryTime == 1 && Objects.isNull(historyData));
@@ -244,10 +244,17 @@ public class ClickUpServiceImpl implements ClickUpService {
             return null;
         }
         List<History> histories = historyData.getHistory();
+        String startId = histories.get(histories.size() - 1).id;
         List<History> allHistories = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(histories)) {
-            explore(historyEndpoint, tokenHeader, allHistories, histories);
+        if (!historyData.isLastPage()) {
+            while (!historyData.isLastPage()) {
+                historyData = clickUpClientService.getHistories(historyEndpoint, tokenHeader, startId);
+                histories.addAll(historyData.getHistory());
+                startId = historyData.getHistory().get(historyData.getHistory().size() - 1).id;
+            }
         }
+
+        explore(historyEndpoint, tokenHeader, allHistories, histories);
 
         return new TokenHistory(tokenHeader, allHistories);
     }

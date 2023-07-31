@@ -22,7 +22,7 @@ public interface ClickUpClientService {
     <T> T getResponse(Class<T> valueType, HttpClient httpClient, ObjectMapper objectMapper, HttpRequestBase request);
     <T, V> T postRequest(String endpoint, V body, Header header, Class<T> valueType);
 
-    HistoryData getHistories(String historyEndpoint, Header token) throws URISyntaxException;
+    HistoryData getHistories(String historyEndpoint, Header token, String startId) throws URISyntaxException;
 
     HistoryData getCollapsedHistories(String historyEndpoint, Header header, String startId, String endId) throws URISyntaxException;
 

@@ -11,12 +11,23 @@ public class HistoryData {
     @JsonProperty("history")
     List<History> history = new ArrayList<>();
 
+    @JsonProperty("last_page")
+    boolean lastPage;
+
     public List<History> getHistory() {
         return history;
     }
 
     public void setHistory(List<History> history) {
         this.history = history;
+    }
+
+    public boolean isLastPage() {
+        return lastPage;
+    }
+
+    public void setLastPage(boolean lastPage) {
+        this.lastPage = lastPage;
     }
 
     @Override
