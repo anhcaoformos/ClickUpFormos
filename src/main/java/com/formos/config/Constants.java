@@ -17,6 +17,10 @@ public final class Constants {
     public static final String SYSTEM = "system";
     public static final String DEFAULT_LANGUAGE = "en";
 
+    public static final Set<String> SINGLE_BLOCK_TYPES = Stream
+        .of("attachment", "emoticon", "userMention", "divider", "taskImage", "taskMention", "tag")
+        .collect(Collectors.toSet());
+
     public static final List<String> IMAGE_EXTENSION = Arrays.asList("jpg", "jpeg", "png", "gif", "bmp");
     public static final Set<String> CSS_ATTRIBUTES = Stream
         .of(

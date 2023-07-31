@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <th:block th:fragment="comment">
+  <th:block th:fragment="histories">
     <div id="comments" th:if="${not #lists.isEmpty(task.getHistories())}">
       <hr class="separate_sections" />
       <h2>Comments:</h2>
       <div th:each="history : ${task.getHistories()}" class="comment_container page_break_inside pl10px pr10px">
         <div class="row" th:if="${history.getComment() == null}">
-          <span th:utext="${history.getDescription()}"></span>
+          <div class="truncate_text" th:utext="${history.getDescription()}"></div>
+          <div class="history_date_time"><h5 th:text="${history.getDate()}"></h5></div>
         </div>
         <div th:if="${history.getComment() != null}">
           <div class="row">
@@ -83,7 +84,7 @@
               <div class="date_time"><h6 th:text="${child.getDateTime()}"></h6></div>
             </div>
             <div>
-              <!--              <div th:utext="${child.getHtmlText()}"></div>-->
+              <div th:utext="${child.getHtmlText()}"></div>
               <hr th:if="${child.getAssignee() != null}" />
               <div class="row_start" th:if="${child.getAssignee() != null}">
                 <div class="comment_title assignee_item" th:if="${child.getAssignee() != null}">

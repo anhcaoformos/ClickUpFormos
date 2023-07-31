@@ -3,6 +3,7 @@ package com.formos.service.dto.clickup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class CommentDTO {
 
@@ -23,6 +24,7 @@ public class CommentDTO {
     private String textComment;
     private String commentAttachmentId;
     private String htmlText;
+    private Set<AttachmentDTO> attachments;
 
     public CommentDTO() {}
 
@@ -168,6 +170,14 @@ public class CommentDTO {
 
     public void setTextComment(String textComment) {
         this.textComment = textComment;
+    }
+
+    public Set<AttachmentDTO> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Set<AttachmentDTO> attachments) {
+        this.attachments = attachments;
     }
 
     @Override

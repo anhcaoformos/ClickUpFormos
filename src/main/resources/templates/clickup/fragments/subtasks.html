@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <th:block th:fragment="subtask">
+  <th:block th:fragment="subtasks">
     <div id="subtasks" th:if="${not #lists.isEmpty(task.getSubtasks())}">
       <hr class="separate_sections" />
       <h2>Subtasks:</h2>
-      <div class="row_start" th:each="subtask : ${task.getSubtasks()}">
+      <div class="row_start page_break_inside" th:each="subtask : ${task.getSubtasks()}">
         <div
           class="subtask_status"
           th:style="'border: 1px solid ' + ${subtask.getStatusColor()} + '; background: ' + ${subtask.getStatusColor()} + ';'"

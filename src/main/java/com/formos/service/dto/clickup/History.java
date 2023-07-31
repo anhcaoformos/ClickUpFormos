@@ -19,6 +19,9 @@ public class History {
     @JsonProperty("parent_id")
     public String parentId;
 
+    @JsonProperty("custom_field")
+    public CustomField customField;
+
     public TaskComments.User user;
     public Data data;
     public String date;
@@ -72,5 +75,16 @@ public class History {
 
         @JsonProperty("status_type")
         public String statusType;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CustomField {
+
+        public String id;
+        public String name;
+        public String type;
+
+        @JsonProperty("type_config")
+        public Object typeConfig;
     }
 }

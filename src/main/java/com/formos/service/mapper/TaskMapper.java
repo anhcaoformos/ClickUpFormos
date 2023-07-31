@@ -57,7 +57,7 @@ public class TaskMapper {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             TaskContentData contentData = objectMapper.readValue(task.getContent(), TaskContentData.class);
-            taskDTO.setDescription(commentMapper.buildHtml(profile, taskHistory, contentData));
+            taskDTO.setDescription(commentMapper.buildContentHtml(profile, taskHistory, contentData));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

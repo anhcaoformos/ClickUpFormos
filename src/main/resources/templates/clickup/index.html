@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.thymeleaf.org"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -247,6 +252,12 @@
         padding: 4px 0 0;
         color: #abaeb0;
       }
+      .history_date_time {
+        font-size: 11px;
+        font-weight: 400;
+        flex-shrink: 0;
+        color: #abaeb0;
+      }
       .truncate_text {
         overflow: hidden;
         text-overflow: ellipsis;
@@ -300,11 +311,11 @@
       </div>
       <div>
         <th:block th:replace="clickup/fragments/task :: task"></th:block>
-        <th:block th:replace="clickup/fragments/subtask :: subtask"></th:block>
-        <th:block th:replace="clickup/fragments/highlightComment :: highlightComments"></th:block>
-        <th:block th:replace="clickup/fragments/checklist :: checklist"></th:block>
+        <th:block th:replace="clickup/fragments/subtasks :: subtasks"></th:block>
+        <th:block th:replace="clickup/fragments/highlightComments :: highlightComments"></th:block>
+        <th:block th:replace="clickup/fragments/checklists :: checklists"></th:block>
         <th:block th:replace="clickup/fragments/attachments :: attachments"></th:block>
-        <th:block th:replace="clickup/fragments/comment :: comment"></th:block>
+        <th:block th:replace="clickup/fragments/histories :: histories"></th:block>
       </div>
     </div>
   </body>

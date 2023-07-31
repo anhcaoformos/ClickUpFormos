@@ -1,19 +1,19 @@
 package com.formos.service.mapper;
 
 import com.formos.config.Constants;
-import com.formos.service.dto.clickup.*;
+import com.formos.service.dto.clickup.History;
+import com.formos.service.dto.clickup.HistoryDTO;
+import com.formos.service.dto.clickup.TaskHistory;
+import com.formos.service.dto.clickup.UserDTO;
 import com.formos.service.utils.CommonUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.JsonArray;
+import com.nimbusds.jose.shaded.gson.JsonElement;
 import com.nimbusds.jose.shaded.gson.JsonObject;
-import io.swagger.v3.core.util.Json;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class HistoryMapper {
@@ -55,8 +55,92 @@ public class HistoryMapper {
             case "comment_assigned" -> getCommentAssignedDescription(history);
             case "attachment_comment" -> getAttachmentCommentDescription(history);
             case "attachments" -> getAttachmentsDescription(history, taskHistory.getFullPath());
+            case "task_creation" -> getTaskCreationDescription(history);
+            case "priority" -> getPriorityDescription(history);
+            case "section_moved" -> getSectionMovedDescription(history);
+            case "assignee_add" -> getAssigneeAddDescription(history);
+            case "follower_add" -> getFollowerAddDescription(history);
+            case "custom_field" -> getCustomFieldDescription(history);
             default -> "";
         };
+    }
+
+    private String getCustomFieldDescription(History history) {
+        StringBuilder customFieldDescription = new StringBuilder();
+        if (Objects.nonNull(history.user) && Objects.nonNull(history.customField)) {
+            customFieldDescription.append(history.user.username);
+            customFieldDescription.append(" set ");
+            Gson gson = new Gson();
+            JsonObject customField = gson.toJsonTree(history.customField).getAsJsonObject();
+            customFieldDescription.append(CommonUtils.getStringPropertyOfJsonObject(customField, "name"));
+            customFieldDescription.append(" to ");
+            String to = "";
+            if (history.after instanceof String) {
+                to = history.after.toString();
+            }
+            if ("date".equals(history.customField.type)) {
+                to = CommonUtils.formatToDateTimeFromTimestamp(to, Constants.MMM_DD_AT_H_MM_A);
+            } else if ("drop_down".equals(history.customField.type)) {
+                JsonObject typeConfig = gson.toJsonTree(history.customField.typeConfig).getAsJsonObject();
+                JsonArray options = typeConfig.get("options").getAsJsonArray();
+                for (JsonElement optionElement : options) {
+                    JsonObject option = optionElement.getAsJsonObject();
+                    if (Objects.equals(CommonUtils.getStringPropertyOfJsonObject(option, "id"), to)) {
+                        to = CommonUtils.getStringPropertyOfJsonObject(option, "name");
+                    }
+                }
+            }
+            customFieldDescription.append(to);
+        }
+        return customFieldDescription.toString();
+    }
+
+    private String getFollowerAddDescription(History history) {
+        StringBuilder followerAddDescription = new StringBuilder();
+        if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
+            followerAddDescription.append(history.user.username);
+            followerAddDescription.append(" added watcher: ");
+            Gson gson = new Gson();
+            JsonObject assignee = gson.toJsonTree(history.after).getAsJsonObject();
+            followerAddDescription.append(CommonUtils.getStringPropertyOfJsonObject(assignee, "username"));
+        }
+        return followerAddDescription.toString();
+    }
+
+    private String getAssigneeAddDescription(History history) {
+        StringBuilder assigneeAddDescription = new StringBuilder();
+        if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
+            assigneeAddDescription.append(history.user.username);
+            assigneeAddDescription.append(" assigned to: ");
+            Gson gson = new Gson();
+            JsonObject assignee = gson.toJsonTree(history.after).getAsJsonObject();
+            assigneeAddDescription.append(CommonUtils.getStringPropertyOfJsonObject(assignee, "username"));
+        }
+        return assigneeAddDescription.toString();
+    }
+
+    private String getSectionMovedDescription(History history) {
+        StringBuilder sectionMovedDescription = new StringBuilder();
+        if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
+            sectionMovedDescription.append(history.user.username);
+            sectionMovedDescription.append(" changed the home list from ");
+            Gson gson = new Gson();
+            JsonObject sectionBefore = gson.toJsonTree(history.before).getAsJsonObject();
+            sectionMovedDescription.append(CommonUtils.getStringPropertyOfJsonObject(sectionBefore, "name"));
+            sectionMovedDescription.append(" to ");
+            JsonObject sectionAfter = gson.toJsonTree(history.after).getAsJsonObject();
+            sectionMovedDescription.append(CommonUtils.getStringPropertyOfJsonObject(sectionAfter, "name"));
+        }
+        return sectionMovedDescription.toString();
+    }
+
+    private String getTaskCreationDescription(History history) {
+        StringBuilder taskCreationDescription = new StringBuilder();
+        if (Objects.nonNull(history.user)) {
+            taskCreationDescription.append(history.user.username);
+            taskCreationDescription.append(" created this task");
+        }
+        return taskCreationDescription.toString();
     }
 
     private String getTagDescription(History history) {
@@ -132,7 +216,7 @@ public class HistoryMapper {
             priorityDescription.append(" set priority to ");
             Gson gson = new Gson();
             JsonObject priority = gson.toJsonTree(history.after).getAsJsonObject();
-            priorityDescription.append(CommonUtils.getStringPropertyOfJsonObject(priority, "priority"));
+            priorityDescription.append(WordUtils.capitalize(CommonUtils.getStringPropertyOfJsonObject(priority, "priority")));
         }
         return priorityDescription.toString();
     }
@@ -228,10 +312,10 @@ public class HistoryMapper {
             Gson gson = new Gson();
             changeStatusDescription.append(" change status from ");
             JsonObject beforeObject = gson.toJsonTree(history.before).getAsJsonObject();
-            changeStatusDescription.append(CommonUtils.getStringPropertyOfJsonObject(beforeObject, "status"));
+            changeStatusDescription.append(WordUtils.capitalize(CommonUtils.getStringPropertyOfJsonObject(beforeObject, "status")));
             changeStatusDescription.append(" to ");
             JsonObject afterObject = gson.toJsonTree(history.after).getAsJsonObject();
-            changeStatusDescription.append(CommonUtils.getStringPropertyOfJsonObject(afterObject, "status"));
+            changeStatusDescription.append(WordUtils.capitalize(CommonUtils.getStringPropertyOfJsonObject(afterObject, "status")));
         }
         return changeStatusDescription.toString();
     }

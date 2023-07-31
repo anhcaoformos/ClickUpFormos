@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <th:block th:fragment="checklist">
+  <th:block th:fragment="checklists">
     <div id="checklists" th:if="${not #lists.isEmpty(task.getChecklists())}">
       <hr class="separate_sections" />
       <div th:each="checklist : ${task.getChecklists()}">

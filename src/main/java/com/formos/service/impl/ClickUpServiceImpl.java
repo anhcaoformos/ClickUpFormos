@@ -109,36 +109,54 @@ public class ClickUpServiceImpl implements ClickUpService {
                 HistoryDTO historyDTO = historyMapper.toHistoryDTO(taskHistory, history);
                 if (Constants.COMMENT_TYPES.contains(historyDTO.getField())) {
                     try {
+                        CommentDTO historyDTOComment = historyDTO.getComment();
+                        String historyId = historyDTOComment.getId();
                         List<CommentDTO> children = clickUpClientService
                             .getChildrenComments(
                                 taskHistory.getTaskId(),
-                                historyDTO.getComment(),
+                                historyDTOComment,
                                 profile.getBaseUrl() + Constants.REPLY_ENDPOINT,
                                 tokenHistory.getToken()
                             )
                             .comments.stream()
-                            .map(comment -> commentMapper.toCommentDTO(taskHistory, comment))
+                            .map(comment -> {
+                                CommentDTO commentDTO = commentMapper.toCommentDTO(taskHistory, comment);
+                                if (Objects.nonNull(commentDTO.getResolved())) {
+                                    if (Objects.isNull(map.get(commentDTO.getId()))) {
+                                        map.put(commentDTO.getId(), commentDTO);
+                                    }
+                                }
+                                taskDTO.addAttachments(commentDTO.getAttachments());
+                                return commentDTO;
+                            })
                             .collect(Collectors.toList());
-                        historyDTO.getComment().addChildren(children);
-                        allComments.add(historyDTO.getComment());
-                        allComments.addAll(historyDTO.getComment().getChildren());
+                        historyDTOComment.addChildren(children);
+                        if (Objects.nonNull(historyDTOComment.getResolved())) {
+                            if (Objects.isNull(map.get(historyId))) {
+                                map.put(historyId, historyDTOComment);
+                            }
+                        }
+                        allComments.add(historyDTOComment);
+                        allComments.addAll(historyDTOComment.getChildren());
                         if ("attachment_comment".equals(historyDTO.getField())) {
-                            if (Objects.isNull(map.get(history.comment.id))) {
-                                map.put(history.comment.id, historyDTO.getComment());
+                            if (Objects.isNull(map.get(historyId))) {
+                                map.put(historyId, historyDTOComment);
                             }
                         }
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
                     }
                 } else if (Constants.HIGHLIGHT_COMMENT_TYPES.contains(historyDTO.getField())) {
-                    if (Objects.isNull(map.get(history.comment.id))) {
-                        map.put(history.comment.id, commentMapper.toCommentDTO(taskHistory, history));
+                    String historyId = history.comment.id;
+                    if (Objects.isNull(map.get(historyId))) {
+                        map.put(historyId, commentMapper.toCommentDTO(taskHistory, history));
                     }
                 }
 
                 return historyDTO;
             })
-            .toList();
+            .collect(Collectors.toList());
+        Collections.reverse(historyDTOs);
         taskDTO.setHistories(historyDTOs);
         List<CommentDTO> highlightComments = allComments
             .stream()
@@ -146,61 +164,6 @@ public class ClickUpServiceImpl implements ClickUpService {
             .sorted(Comparator.comparing(CommentDTO::getTimeStamp))
             .collect(Collectors.toList());
         taskDTO.setHighlightComments(highlightComments);
-        /*List<History> historyComments = historyData
-            .getHistory()
-            .stream()
-            .filter(history -> Constants.COMMENT_TYPES.contains(history.field))
-            .toList();
-
-        TaskHistory taskHistory = new TaskHistory(baseFolder, taskId, currentTime);
-
-        Map<String, CommentDTO> map = new HashMap<>();
-        for (History history : historyComments) {
-            TaskComments.Comment comment = history.comment;
-            if (Objects.isNull(map.get(comment.id))) {
-                map.put(comment.id, commentMapper.toCommentDTO(taskHistory, history));
-            }
-        }
-
-        TaskDTO taskDTO = taskMapper.toTaskDTO(profile, taskData, taskHistory);
-
-        TaskComments taskComments = clickUpClientService.getRequest(taskCommentsEndPoint, null, authorization, TaskComments.class);
-        List<CommentDTO> commentDTOs = taskComments.comments
-            .stream()
-            .map(comment -> commentMapper.processAddHistory(taskHistory, map, comment))
-            .collect(Collectors.toList());
-        Collections.reverse(commentDTOs);
-
-        addChildrenComments(profile, tokenHistory, taskHistory, map, taskDTO, commentDTOs);*/
-        //        histories.stream().filter(historyDTO -> "comment".equals(historyDTO.getField())).forEach(historyDTO -> {
-        //            try {
-        //                List<CommentDTO> children = clickUpClientService
-        //                        .getChildrenComments(
-        //                                taskHistory.getTaskId(),
-        //                                historyDTO.getComment(),
-        //                                profile.getBaseUrl() + Constants.REPLY_ENDPOINT,
-        //                                tokenHistory.getToken()
-        //                        ).comments.stream().map(comment -> commentMapper.toCommentDTO(taskHistory, comment)).collect(Collectors.toList());
-        //                historyDTO.getComment().addChildren(children);
-        //            } catch (URISyntaxException e) {
-        //                e.printStackTrace();
-        //            }
-        //        });
-        //        taskDTO.setHistories(historieDTOs);
-
-        //        List<CommentDTO> highlightComments = commentDTOs
-        //            .stream()
-        //            .filter(commentDTO -> Objects.nonNull(commentDTO.getAssignee()))
-        //            .collect(Collectors.toList());
-        //        List<CommentDTO> attachmentComments = historyData
-        //            .getHistory()
-        //            .stream()
-        //            .filter(history -> Constants.ATTACHMENT_COMMENT.equals(history.field))
-        //            .map(history -> commentMapper.toCommentDTO(taskHistory, history))
-        //            .toList();
-        //        addChildrenComments(profile, tokenHistory, taskHistory, map, taskDTO, attachmentComments);
-        //        highlightComments.addAll(attachmentComments);
-        //        taskDTO.setHighlightComments(highlightComments);
 
         String saveDirectory = taskHistory.getFullPath();
         String saveDirectoryPath = saveDirectory + "\\/";
