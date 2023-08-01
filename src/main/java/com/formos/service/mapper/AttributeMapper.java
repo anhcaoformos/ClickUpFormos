@@ -30,7 +30,7 @@ public class AttributeMapper {
             attributesDTO.setBlockQuote(CommonUtils.getOrDefault(attributes.blockQuote, null));
             attributesDTO.setAdvancedBannerColor(CommonUtils.getOrDefault(attributes.advancedBannerColor, null));
             if (Objects.nonNull(attributesDTO.getAdvancedBannerColor())) {
-                attributesDTO.setAdvancedBannerBackgroundColor(decreaseSaturation(attributesDTO.getAdvancedBannerColor()));
+                attributesDTO.setAdvancedBannerBackgroundColor(CommonUtils.decreaseSaturation(attributesDTO.getAdvancedBannerColor()));
             }
             attributesDTO.setDataId(CommonUtils.getOrDefault(attributes.dataId, null));
             attributesDTO.setTableColWidth(Objects.nonNull(attributes.tableCol) ? attributes.tableCol.width : null);
@@ -68,26 +68,5 @@ public class AttributeMapper {
             e.printStackTrace();
             return null;
         }
-    }
-
-    private Color getColorFromName(String colorName) {
-        try {
-            return (Color) Color.class.getField(colorName.toLowerCase()).get(null);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private String decreaseSaturation(String colorName) {
-        Color color = getColorFromName(colorName);
-        if (Objects.isNull(color)) {
-            return "white";
-        }
-        float factor = 0.9f;
-        float[] hsl = new float[3];
-        Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsl);
-        hsl[1] = Math.max(0f, hsl[1] - factor);
-        Color modifiedColor = new Color(Color.HSBtoRGB(hsl[0], hsl[1], hsl[2]));
-        return "#" + Integer.toHexString(modifiedColor.getRGB()).substring(2);
     }
 }

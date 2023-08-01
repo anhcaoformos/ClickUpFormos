@@ -2,10 +2,16 @@ package com.formos.service.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.formos.config.Constants;
 import com.formos.domain.Profile;
 import com.formos.service.dto.clickup.*;
+import com.formos.service.utils.CommonUtils;
+import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.JsonObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -58,10 +64,27 @@ public class TaskMapper {
         try {
             TaskContentData contentData = objectMapper.readValue(task.getContent(), TaskContentData.class);
             taskDTO.setDescription(commentMapper.buildContentHtml(profile, taskHistory, contentData));
+            Set<AttachmentDTO> attachments = contentData.contentItemData
+                .stream()
+                .map(taskContentItemData -> {
+                    AttachmentDTO attachmentDTO = null;
+                    if (taskContentItemData.content instanceof HashMap) {
+                        Gson gson = new Gson();
+                        JsonObject content = gson.toJsonTree(taskContentItemData.content).getAsJsonObject();
+                        if (content.has("attachment")) {
+                            JsonObject attachment = content.get("attachment").getAsJsonObject();
+                            attachmentDTO = attachmentMapper.toAttachmentDTO(attachment);
+                        }
+                    }
+                    return attachmentDTO;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+            taskDTO.addAttachments(attachments);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        taskDTO.setAttachments(task.getAttachments().stream().map(attachmentMapper::toAttachmentDTO).collect(Collectors.toSet()));
+        taskDTO.addAttachments(task.getAttachments().stream().map(attachmentMapper::toAttachmentDTO).collect(Collectors.toSet()));
         return taskDTO;
     }
 }

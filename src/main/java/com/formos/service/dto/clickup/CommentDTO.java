@@ -164,6 +164,10 @@ public class CommentDTO {
         this.commentAttachmentId = commentAttachmentId;
     }
 
+    public void addAttachment(AttachmentDTO attachmentDTO) {
+        this.attachments.add(attachmentDTO);
+    }
+
     public String getTextComment() {
         return textComment;
     }

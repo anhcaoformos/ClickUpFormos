@@ -1,5 +1,6 @@
 package com.formos.service.dto.clickup;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +13,7 @@ public class TaskDTO {
     private String description;
     private List<HistoryDTO> histories;
     private List<CommentDTO> highlightComments;
-    private Set<AttachmentDTO> attachments;
+    private Set<AttachmentDTO> attachments = new HashSet<>();
     private String baseImagePath;
     private UserDTO creator;
     private String priority;

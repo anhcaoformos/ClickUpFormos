@@ -1,6 +1,8 @@
 package com.formos.service.utils;
 
+import com.formos.config.Constants;
 import com.nimbusds.jose.shaded.gson.JsonObject;
+import java.awt.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -23,5 +25,30 @@ public class CommonUtils {
         }
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         return dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timestamp)), ZoneId.systemDefault()));
+    }
+
+    public static String decreaseSaturation(String colorName) {
+        Color color = getColorFromName(colorName);
+        if (Objects.isNull(color)) {
+            return "white";
+        }
+        float factor = 0.9f;
+        float[] hsl = new float[3];
+        Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsl);
+        hsl[1] = Math.max(0f, hsl[1] - factor);
+        Color modifiedColor = new Color(Color.HSBtoRGB(hsl[0], hsl[1], hsl[2]));
+        return "#" + Integer.toHexString(modifiedColor.getRGB()).substring(2);
+    }
+
+    public static boolean isImage(String extension) {
+        return Constants.IMAGE_EXTENSION.contains(extension);
+    }
+
+    private static Color getColorFromName(String colorName) {
+        try {
+            return (Color) Color.class.getField(colorName.toLowerCase()).get(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

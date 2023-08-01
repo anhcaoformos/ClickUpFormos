@@ -146,6 +146,8 @@ public class HistoryMapper {
     private String getTagDescription(History history) {
         StringBuilder tagDescription = new StringBuilder();
         if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
+            tagDescription.append("<div class=\"row_start\">");
+            tagDescription.append("<div class=\"mr10px\">");
             tagDescription.append(history.user.username);
             Gson gson = new Gson();
             JsonArray tags = gson.toJsonTree(history.after).getAsJsonArray();
@@ -154,17 +156,18 @@ public class HistoryMapper {
             } else {
                 tagDescription.append(" added tags ");
             }
-            tagDescription.append("<div class=\"row_start\">");
+            tagDescription.append("</div>");
             tags.forEach(tagElement -> {
                 JsonObject tag = tagElement.getAsJsonObject();
+                String tagBackground = CommonUtils.getStringPropertyOfJsonObject(tag, "tag_bg");
                 tagDescription
-                    .append("<div class=\"tag mr10px\"> style=\"background: ")
-                    .append(tag.get("tag_bg"))
-                    .append("; text-decoration: ")
-                    .append(tag.get("tag_fg"))
-                    .append(";>")
-                    .append(tag.get("name"))
-                    .append("</>");
+                    .append("<div class=\"tag mr10px\" style=\"background: ")
+                    .append(tagBackground)
+                    .append("; color: ")
+                    .append(CommonUtils.decreaseSaturation(tagBackground))
+                    .append(";\">")
+                    .append(CommonUtils.getStringPropertyOfJsonObject(tag, "name"))
+                    .append("</div>");
             });
             tagDescription.append("</div>");
         }
@@ -174,6 +177,8 @@ public class HistoryMapper {
     private String getTagRemoveDescription(History history) {
         StringBuilder tagRemoveDescription = new StringBuilder();
         if (Objects.nonNull(history.user) && Objects.nonNull(history.before)) {
+            tagRemoveDescription.append("<div class=\"row_start\">");
+            tagRemoveDescription.append("<div class=\"mr10px\">");
             tagRemoveDescription.append(history.user.username);
             Gson gson = new Gson();
             JsonArray tags = gson.toJsonTree(history.before).getAsJsonArray();
@@ -182,17 +187,18 @@ public class HistoryMapper {
             } else {
                 tagRemoveDescription.append(" removed tags ");
             }
-            tagRemoveDescription.append("<div class=\"row_start\">");
+            tagRemoveDescription.append("</div>");
             tags.forEach(tagElement -> {
                 JsonObject tag = tagElement.getAsJsonObject();
+                String tagBackground = CommonUtils.getStringPropertyOfJsonObject(tag, "tag_bg");
                 tagRemoveDescription
-                    .append("<div class=\"tag mr10px\"> style=\"background: ")
-                    .append(tag.get("tag_bg"))
-                    .append("; text-decoration: ")
-                    .append(tag.get("tag_fg"))
-                    .append(";>")
-                    .append(tag.get("name"))
-                    .append("</>");
+                    .append("<div class=\"tag mr10px\" style=\"background: ")
+                    .append(tagBackground)
+                    .append("; color: ")
+                    .append(CommonUtils.decreaseSaturation(tagBackground))
+                    .append(";\">")
+                    .append(CommonUtils.getStringPropertyOfJsonObject(tag, "name"))
+                    .append("</div>");
             });
             tagRemoveDescription.append("</div>");
         }
@@ -365,11 +371,19 @@ public class HistoryMapper {
             }
             attachmentsDescription.append("<div class=\"row_start\">");
             history.attachments.forEach(attachment -> {
-                String imagePath = taskPath + "\\/" + attachment.id;
-                attachmentsDescription
-                    .append("<div class=\"attachment_item\"><img class=\"attachment_image page_break_inside\" src=\"")
-                    .append(imagePath)
-                    .append("\"/></div>");
+                String attachmentPath = taskPath + "\\/" + attachment.id;
+                if (CommonUtils.isImage(attachment.extension)) {
+                    attachmentsDescription
+                        .append("<div class=\"attachment_item\"><img class=\"attachment_image page_break_inside\" src=\"")
+                        .append(attachmentPath)
+                        .append("\"/></div>");
+                } else {
+                    attachmentsDescription
+                        .append("<div class=\"attachment_item\"><a>")
+                        .append(attachment.title)
+                        .append("</a>")
+                        .append("</div>");
+                }
             });
             attachmentsDescription.append("</div>");
         }

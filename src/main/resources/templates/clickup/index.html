@@ -305,7 +305,7 @@
         <div
           class="tag mr10px"
           th:each="tag : ${task.getTags()}"
-          th:style="'background: ' + ${tag.getTagBackground()} + '; text-decoration: ' + ${tag.getTagForeground()} + ';'"
+          th:style="'background: ' + ${tag.getTagBackground()} + '; color: ' + ${tag.getTagForeground()} + ';'"
           th:text="${tag.getName()}"
         ></div>
       </div>

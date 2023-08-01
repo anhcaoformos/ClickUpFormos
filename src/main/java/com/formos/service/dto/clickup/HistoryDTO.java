@@ -10,10 +10,6 @@ public class HistoryDTO {
     private CommentDTO comment;
     private UserDTO user;
     private String date;
-    //    private String before;
-    //    private String after;
-    //    private List<AttachmentDTO> attachments;
-    //    private String dueDate;
     private String description;
 
     public HistoryDTO() {}

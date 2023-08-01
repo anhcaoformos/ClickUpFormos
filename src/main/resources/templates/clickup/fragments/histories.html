@@ -84,7 +84,7 @@
               <div class="date_time"><h6 th:text="${child.getDateTime()}"></h6></div>
             </div>
             <div>
-              <!--              <div th:utext="${child.getHtmlText()}"></div>-->
+              <div th:utext="${child.getHtmlText()}"></div>
               <hr th:if="${child.getAssignee() != null}" />
               <div class="row_start" th:if="${child.getAssignee() != null}">
                 <div class="comment_title assignee_item" th:if="${child.getAssignee() != null}">

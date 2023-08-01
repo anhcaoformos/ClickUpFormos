@@ -36,7 +36,7 @@ public class ContentItemMapper {
             contentItemDTO.setUrl(commentItem.attachment.url);
             contentItemDTO.setAttachmentId(commentItem.attachment.id);
             contentItemDTO.setExtension(commentItem.attachment.extension);
-            contentItemDTO.setImage(Constants.IMAGE_EXTENSION.contains(commentItem.attachment.extension));
+            contentItemDTO.setImage(CommonUtils.isImage(commentItem.attachment.extension));
         }
         if (Objects.nonNull(commentItem.emoticon) && Objects.nonNull(commentItem.emoticon.code)) {
             contentItemDTO.setEmoticonCode(commentItem.emoticon.code);
@@ -61,7 +61,7 @@ public class ContentItemMapper {
                 contentItemDTO.setAttachmentId(CommonUtils.getStringPropertyOfJsonObject(attachment, "id"));
                 contentItemDTO.setUrl(CommonUtils.getStringPropertyOfJsonObject(attachment, "url"));
                 contentItemDTO.setExtension(CommonUtils.getStringPropertyOfJsonObject(attachment, "extension"));
-                contentItemDTO.setImage(Constants.IMAGE_EXTENSION.contains(contentItemDTO.getExtension()));
+                contentItemDTO.setImage(CommonUtils.isImage(contentItemDTO.getExtension()));
                 contentItemDTO.setType("attachment");
             }
 

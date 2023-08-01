@@ -27,7 +27,7 @@
         <div class="mr10px" th:if="${not #lists.isEmpty(subtask.getTags())}" th:each="tag : ${subtask.getTags()}">
           <div
             class="tag"
-            th:style="'background: ' + ${tag.getTagBackground()} + '; text-color: ' + ${tag.getTagForeground()} + ';'"
+            th:style="'background: ' + ${tag.getTagBackground()} + '; color: ' + ${tag.getTagForeground()} + ';'"
             th:text="${tag.getName()}"
           ></div>
         </div>
