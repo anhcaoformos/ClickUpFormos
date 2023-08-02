@@ -31,14 +31,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClickUpClientServiceImpl implements ClickUpClientService {
 
-    public TaskComments getChildrenComments(String taskId, CommentDTO comment, String childrenCommentEndpoint, Header token)
+    public Object getChildrenComments(String taskId, CommentDTO comment, String childrenCommentEndpoint, Header token)
         throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("key", "2_" + comment.getId()));
         parameters.add(new BasicNameValuePair("parent", comment.getId()));
         parameters.add(new BasicNameValuePair("type", "2"));
         parameters.add(new BasicNameValuePair("loadAllPages", "false"));
-        return getRequest(childrenCommentEndpoint, parameters, token, TaskComments.class);
+        return getRequest(childrenCommentEndpoint, parameters, token, Object.class);
     }
 
     public <T> T getRequest(String endpoint, List<NameValuePair> parameters, Header header, Class<T> valueType) throws URISyntaxException {
@@ -92,7 +92,7 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         return getResponse(valueType, httpClient, objectMapper, request);
     }
 
-    public HistoryData getHistories(String historyEndpoint, Header token, String startId) throws URISyntaxException {
+    public Object getHistories(String historyEndpoint, Header token, String startId) throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("contracted_view", Boolean.TRUE.toString()));
         parameters.add(new BasicNameValuePair("reverse", Boolean.FALSE.toString()));
@@ -165,10 +165,10 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         if (Objects.nonNull(startId)) {
             parameters.add(new BasicNameValuePair("start_id", startId));
         }
-        return getRequest(historyEndpoint, parameters, token, HistoryData.class);
+        return getRequest(historyEndpoint, parameters, token, Object.class);
     }
 
-    public HistoryData getCollapsedHistories(String historyEndpoint, Header token, String startId, String endId) throws URISyntaxException {
+    public Object getCollapsedHistories(String historyEndpoint, Header token, String startId, String endId) throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("contracted_view", Boolean.FALSE.toString()));
         parameters.add(new BasicNameValuePair("reverse", Boolean.FALSE.toString()));
@@ -243,10 +243,10 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         if (Objects.nonNull(endId)) {
             parameters.add(new BasicNameValuePair("end_id", endId));
         }
-        return getRequest(historyEndpoint, parameters, token, HistoryData.class);
+        return getRequest(historyEndpoint, parameters, token, Object.class);
     }
 
-    public TaskData getTask(String taskEnpoint, Header token) throws URISyntaxException {
+    public Object getTask(String taskEnpoint, Header token) throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("include_groups", Boolean.TRUE.toString()));
         parameters.add(new BasicNameValuePair("field_backlinks", Boolean.TRUE.toString()));
@@ -284,7 +284,7 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         parameters.add(new BasicNameValuePair("markItemViewed", Boolean.TRUE.toString()));
         parameters.add(new BasicNameValuePair("include_archived_subtasks", Boolean.TRUE.toString()));
         parameters.add(new BasicNameValuePair("clear_nested_subtasks", Boolean.TRUE.toString()));
-        return getRequest(taskEnpoint, parameters, token, TaskData.class);
+        return getRequest(taskEnpoint, parameters, token, Object.class);
     }
 
     public String getTaskTitle(Profile profile, String taskId) {

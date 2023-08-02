@@ -1,7 +1,7 @@
 package com.formos.service.dto.clickup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nimbusds.jose.shaded.gson.annotations.SerializedName;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,10 +16,10 @@ public class History {
     public String field;
     public int count;
 
-    @JsonProperty("parent_id")
+    @SerializedName("parent_id")
     public String parentId;
 
-    @JsonProperty("custom_field")
+    @SerializedName("custom_field")
     public CustomField customField;
 
     public TaskComments.User user;
@@ -27,10 +27,10 @@ public class History {
     public String date;
     public Task.Checklist checklist;
 
-    @JsonProperty("checklist_item")
+    @SerializedName("checklist_item")
     public Task.ChecklistItem checklistItem;
 
-    @JsonProperty("checklist_items")
+    @SerializedName("checklist_items")
     public List<Task.ChecklistItem> checklistItems;
 
     @Override
@@ -61,19 +61,19 @@ public class History {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Data {
 
-        @JsonProperty("attachment_id")
+        @SerializedName("attachment_id")
         public String attachmentId;
 
-        @JsonProperty("due_date_time")
+        @SerializedName("due_date_time")
         public Boolean dueDateTime;
 
-        @JsonProperty("old_due_date_time")
+        @SerializedName("old_due_date_time")
         public Boolean oldDueDateTime;
 
-        @JsonProperty("checklist_id")
+        @SerializedName("checklist_id")
         public String checklistId;
 
-        @JsonProperty("status_type")
+        @SerializedName("status_type")
         public String statusType;
     }
 
@@ -84,7 +84,7 @@ public class History {
         public String name;
         public String type;
 
-        @JsonProperty("type_config")
+        @SerializedName("type_config")
         public Object typeConfig;
     }
 }

@@ -1,7 +1,7 @@
 package com.formos.service.dto.clickup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nimbusds.jose.shaded.gson.annotations.SerializedName;
 import java.util.ArrayList;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -51,14 +51,14 @@ public class Task {
         public String id;
         public String name;
 
-        @JsonProperty("orderindex")
+        @SerializedName("orderindex")
         public Long orderIndex;
 
-        @JsonProperty("creator")
+        @SerializedName("creator")
         public long creatorId;
 
-        public boolean resolved;
-        public boolean unresolved;
+        public Object resolved;
+        public Object unresolved;
         public ArrayList<ChecklistItem> items;
     }
 
@@ -68,12 +68,12 @@ public class Task {
         public String id;
         public String name;
 
-        @JsonProperty("orderindex")
+        @SerializedName("orderindex")
         public Long orderIndex;
 
         public TaskComments.User assignee;
 
-        @JsonProperty("date_created")
+        @SerializedName("date_created")
         public String createdDate;
 
         public boolean resolved;
@@ -88,7 +88,7 @@ public class Task {
         public Priority priority;
         public Status status;
 
-        @JsonProperty("due_date")
+        @SerializedName("due_date")
         public String dueDate;
 
         public ArrayList<Tag> tags;
@@ -97,15 +97,15 @@ public class Task {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Tag {
 
-        @JsonProperty("creator")
+        @SerializedName("creator")
         public long creatorId;
 
         public String name;
 
-        @JsonProperty("tag_bg")
+        @SerializedName("tag_bg")
         public String tagBackground;
 
-        @JsonProperty("tag_fg")
+        @SerializedName("tag_fg")
         public String tagForeground;
     }
 
@@ -115,7 +115,7 @@ public class Task {
         public String id;
         public String color;
 
-        @JsonProperty("orderindex")
+        @SerializedName("orderindex")
         public String orderIndex;
 
         public String priority;
@@ -160,7 +160,7 @@ public class Task {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Sharing {
 
-        @JsonProperty("public")
+        @SerializedName("public")
         public boolean mypublic;
 
         public String public_share_expires_on;

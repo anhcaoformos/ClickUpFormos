@@ -15,18 +15,17 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 
 public interface ClickUpClientService {
-    TaskComments getChildrenComments(String taskId, CommentDTO comment, String childrenCommentEndpoint, Header token)
-        throws URISyntaxException;
+    Object getChildrenComments(String taskId, CommentDTO comment, String childrenCommentEndpoint, Header token) throws URISyntaxException;
     <T> T getRequest(String endpoint, List<NameValuePair> parameters, Header header, Class<T> valueType) throws URISyntaxException;
 
     <T> T getResponse(Class<T> valueType, HttpClient httpClient, ObjectMapper objectMapper, HttpRequestBase request);
     <T, V> T postRequest(String endpoint, V body, Header header, Class<T> valueType);
 
-    HistoryData getHistories(String historyEndpoint, Header token, String startId) throws URISyntaxException;
+    Object getHistories(String historyEndpoint, Header token, String startId) throws URISyntaxException;
 
-    HistoryData getCollapsedHistories(String historyEndpoint, Header header, String startId, String endId) throws URISyntaxException;
+    Object getCollapsedHistories(String historyEndpoint, Header header, String startId, String endId) throws URISyntaxException;
 
-    TaskData getTask(String taskEnpoint, Header token) throws URISyntaxException;
+    Object getTask(String taskEnpoint, Header token) throws URISyntaxException;
 
     String getTaskTitle(Profile profile, String taskId);
 }

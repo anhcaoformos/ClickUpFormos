@@ -3,7 +3,7 @@ import { IProfile } from 'app/entities/profile/profile.model';
 export interface IDownloadHistory {
   id: number;
   taskId?: string | null;
-  historyId?: string | null;
+  timestamp?: string | null;
   profile?: IProfile | null;
 }
 

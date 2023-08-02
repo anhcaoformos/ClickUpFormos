@@ -1,17 +1,17 @@
 package com.formos.service.dto.clickup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nimbusds.jose.shaded.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HistoryData {
 
-    @JsonProperty("history")
+    @SerializedName("history")
     List<History> history = new ArrayList<>();
 
-    @JsonProperty("last_page")
+    @SerializedName("last_page")
     boolean lastPage;
 
     public List<History> getHistory() {

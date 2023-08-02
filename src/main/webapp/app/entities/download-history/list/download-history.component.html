@@ -44,9 +44,9 @@
               <fa-icon class="p-1" icon="sort"></fa-icon>
             </div>
           </th>
-          <th scope="col" jhiSortBy="historyId">
+          <th scope="col" jhiSortBy="timestamp">
             <div class="d-flex">
-              <span jhiTranslate="clickupApp.downloadHistory.historyId">History Id</span>
+              <span jhiTranslate="clickupApp.downloadHistory.timestamp">History Id</span>
               <fa-icon class="p-1" icon="sort"></fa-icon>
             </div>
           </th>
@@ -65,7 +65,7 @@
             <a [routerLink]="['/download-history', downloadHistory.id, 'view']">{{ downloadHistory.id }}</a>
           </td>
           <td>{{ downloadHistory.taskId }}</td>
-          <td>{{ downloadHistory.historyId }}</td>
+          <td>{{ downloadHistory.timestamp }}</td>
           <td>
             <div *ngIf="downloadHistory.profile">
               <a [routerLink]="['/profile', downloadHistory.profile.id, 'view']">{{ downloadHistory.profile.name }}</a>

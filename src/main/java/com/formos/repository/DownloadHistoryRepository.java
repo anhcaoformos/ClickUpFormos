@@ -20,7 +20,7 @@ public interface DownloadHistoryRepository extends JpaRepository<DownloadHistory
     )
     List<DownloadHistory> findAllByCurrentUser();
 
-    boolean existsByProfileAndTaskIdAndHistoryId(Profile profile, String taskId, String historyId);
+    boolean existsByProfileAndTaskIdAndTimestamp(Profile profile, String taskId, String timestamp);
 
     DownloadHistory findTopByTaskId(String taskId);
 }

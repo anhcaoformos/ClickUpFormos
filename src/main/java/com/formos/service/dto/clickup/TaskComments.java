@@ -1,7 +1,7 @@
 package com.formos.service.dto.clickup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nimbusds.jose.shaded.gson.annotations.SerializedName;
 import java.util.ArrayList;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -12,7 +12,7 @@ public class TaskComments {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Attributes {
 
-        @JsonProperty("block-id")
+        @SerializedName("block-id")
         public String blockId;
 
         public Boolean bold;
@@ -23,26 +23,26 @@ public class TaskComments {
         public List list;
         public String link;
 
-        @JsonProperty("color-class")
+        @SerializedName("color-class")
         public String color_class;
 
         public String align;
         public Integer indent;
         public Boolean code;
 
-        @JsonProperty("blockquote")
+        @SerializedName("blockquote")
         public Object blockQuote;
 
-        @JsonProperty("advanced-banner-color")
+        @SerializedName("advanced-banner-color")
         public String advancedBannerColor;
 
-        @JsonProperty("data-id")
+        @SerializedName("data-id")
         public String dataId;
 
-        @JsonProperty("table-col")
+        @SerializedName("table-col")
         public TableCol tableCol;
 
-        @JsonProperty("table-cell-line")
+        @SerializedName("table-cell-line")
         public TableCellLine tableCellLine;
     }
 
@@ -57,10 +57,10 @@ public class TaskComments {
 
         public String row;
 
-        @JsonProperty("rowspan")
+        @SerializedName("rowspan")
         public String rowspan;
 
-        @JsonProperty("colspan")
+        @SerializedName("colspan")
         public String colspan;
 
         public String cell;
@@ -77,7 +77,7 @@ public class TaskComments {
 
         public String id;
 
-        @JsonProperty("comment")
+        @SerializedName("comment")
         public ArrayList<CommentItem> commentDetails;
 
         public String comment_text;
@@ -89,12 +89,12 @@ public class TaskComments {
         public Boolean resolved;
         public User user;
 
-        @JsonProperty("assigned_by")
+        @SerializedName("assigned_by")
         public User assignedBy;
 
         public User assignee;
 
-        @JsonProperty("resolved_by")
+        @SerializedName("resolved_by")
         public User resolvedBy;
 
         public ArrayList<Object> reactions;

@@ -8,8 +8,23 @@
       "fieldType": "String"
     },
     {
-      "fieldName": "historyId",
+      "fieldName": "timestamp",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "taskData",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "historiesData",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "childrenCommentData",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     }
   ],
   "name": "DownloadHistory",

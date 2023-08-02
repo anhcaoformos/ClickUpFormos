@@ -16,7 +16,9 @@ entity File {
 }
 entity DownloadHistory {
     taskId String
-    historyId String
+    timestamp String
+    taskData TextBlob
+    historiesData TextBlob
 }
 
 relationship OneToMany {

@@ -2,13 +2,23 @@ package com.formos.web.rest;
 
 import com.formos.domain.DownloadHistory;
 import com.formos.repository.DownloadHistoryRepository;
+import com.formos.service.ClickUpService;
 import com.formos.service.DownloadHistoryService;
 import com.formos.web.rest.errors.BadRequestAlertException;
+import jakarta.activation.MimetypesFileTypeMap;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import net.lingala.zip4j.ZipFile;
+import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,9 +45,16 @@ public class DownloadHistoryResource {
 
     private final DownloadHistoryRepository downloadHistoryRepository;
 
-    public DownloadHistoryResource(DownloadHistoryService downloadHistoryService, DownloadHistoryRepository downloadHistoryRepository) {
+    private final ClickUpService clickUpService;
+
+    public DownloadHistoryResource(
+        DownloadHistoryService downloadHistoryService,
+        DownloadHistoryRepository downloadHistoryRepository,
+        ClickUpService clickUpService
+    ) {
         this.downloadHistoryService = downloadHistoryService;
         this.downloadHistoryRepository = downloadHistoryRepository;
+        this.clickUpService = clickUpService;
     }
 
     /**
@@ -174,5 +191,25 @@ public class DownloadHistoryResource {
     public List<DownloadHistory> getDownloadHistoryByProfile(@PathVariable Long profileId) {
         log.debug("REST request to get DownloadHistory by profile id: {}", profileId);
         return downloadHistoryService.findAllByProfile(profileId);
+    }
+
+    @GetMapping("/download-histories/{id}/generate-history")
+    public void getGenerateDownloadHistory(@PathVariable Long id, HttpServletResponse response) throws Exception {
+        log.debug("REST request to generate DownloadHistory : {}", id);
+        ZipFile zipFile = clickUpService.exportPdfForHistory(id);
+        String header = String.format("attachment; filename=\"%s\"", zipFile.getFile().getName());
+        response.setHeader("Content-Disposition", header);
+        Path path = Paths.get(zipFile.getFile().getPath());
+        response.reset();
+        MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
+        String mimeType = mimeTypesMap.getContentType(zipFile.getFile().getName());
+        response.setContentType(mimeType);
+        byte[] data = Files.exists(path) ? Files.readAllBytes(path) : new byte[1];
+        response.setContentLength(data.length);
+        response.setHeader("Content-Disposition", header);
+        response.setStatus(HttpServletResponse.SC_OK);
+        OutputStream outputStream = response.getOutputStream();
+        IOUtils.copy(new ByteArrayInputStream(data), outputStream);
+        outputStream.flush();
     }
 }

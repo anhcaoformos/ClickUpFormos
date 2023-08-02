@@ -27,8 +27,20 @@ public class DownloadHistory implements Serializable {
     @Column(name = "task_id")
     private String taskId;
 
-    @Column(name = "history_id")
-    private String historyId;
+    @Column(name = "timestamp")
+    private String timestamp;
+
+    @Lob
+    @Column(name = "task_data")
+    private String taskData;
+
+    @Lob
+    @Column(name = "histories_data")
+    private String historiesData;
+
+    @Lob
+    @Column(name = "children_comment_data")
+    private String childrenCommentData;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "downloadHistory")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -67,17 +79,56 @@ public class DownloadHistory implements Serializable {
         this.taskId = taskId;
     }
 
-    public String getHistoryId() {
-        return this.historyId;
+    public String getTimestamp() {
+        return this.timestamp;
     }
 
-    public DownloadHistory historyId(String historyId) {
-        this.setHistoryId(historyId);
+    public DownloadHistory timestamp(String timestamp) {
+        this.setTimestamp(timestamp);
         return this;
     }
 
-    public void setHistoryId(String historyId) {
-        this.historyId = historyId;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getTaskData() {
+        return this.taskData;
+    }
+
+    public DownloadHistory taskData(String taskData) {
+        this.setTaskData(taskData);
+        return this;
+    }
+
+    public void setTaskData(String taskData) {
+        this.taskData = taskData;
+    }
+
+    public String getHistoriesData() {
+        return this.historiesData;
+    }
+
+    public DownloadHistory historiesData(String historiesData) {
+        this.setHistoriesData(historiesData);
+        return this;
+    }
+
+    public void setHistoriesData(String historiesData) {
+        this.historiesData = historiesData;
+    }
+
+    public String getChildrenCommentData() {
+        return childrenCommentData;
+    }
+
+    public void setChildrenCommentData(String childrenCommentData) {
+        this.childrenCommentData = childrenCommentData;
+    }
+
+    public DownloadHistory childrenCommentData(String childrenCommentData) {
+        this.setChildrenCommentData(childrenCommentData);
+        return this;
     }
 
     public Set<File> getFiles() {
@@ -149,7 +200,9 @@ public class DownloadHistory implements Serializable {
         return "DownloadHistory{" +
             "id=" + getId() +
             ", taskId='" + getTaskId() + "'" +
-            ", historyId='" + getHistoryId() + "'" +
+            ", timestamp='" + getTimestamp() + "'" +
+            ", taskData='" + getTaskData() + "'" +
+            ", historiesData='" + getHistoriesData() + "'" +
             "}";
     }
 }

@@ -19,7 +19,7 @@
       },
       "id": "ID",
       "taskId": "Task Id",
-      "historyId": "History Id",
+      "timestamp": "History Id",
       "file": "File",
       "profile": "Profile"
     }

@@ -60,30 +60,25 @@ public class TaskMapper {
                 ? new ArrayList<>()
                 : task.getChecklists().stream().map(checklistMapper::toChecklistDTO).collect(Collectors.toList())
         );
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            TaskContentData contentData = objectMapper.readValue(task.getContent(), TaskContentData.class);
-            taskDTO.setDescription(commentMapper.buildContentHtml(profile, taskHistory, contentData));
-            Set<AttachmentDTO> attachments = contentData.contentItemData
-                .stream()
-                .map(taskContentItemData -> {
-                    AttachmentDTO attachmentDTO = null;
-                    if (taskContentItemData.content instanceof HashMap) {
-                        Gson gson = new Gson();
-                        JsonObject content = gson.toJsonTree(taskContentItemData.content).getAsJsonObject();
-                        if (content.has("attachment")) {
-                            JsonObject attachment = content.get("attachment").getAsJsonObject();
-                            attachmentDTO = attachmentMapper.toAttachmentDTO(attachment);
-                        }
+        Gson gson = new Gson();
+        TaskContentData contentData = gson.fromJson(task.getContent(), TaskContentData.class);
+        taskDTO.setDescription(commentMapper.buildContentHtml(profile, taskHistory, contentData));
+        Set<AttachmentDTO> attachments = contentData.contentItemData
+            .stream()
+            .map(taskContentItemData -> {
+                AttachmentDTO attachmentDTO = null;
+                if (taskContentItemData.content instanceof HashMap) {
+                    JsonObject content = gson.toJsonTree(taskContentItemData.content).getAsJsonObject();
+                    if (content.has("attachment")) {
+                        JsonObject attachment = content.get("attachment").getAsJsonObject();
+                        attachmentDTO = attachmentMapper.toAttachmentDTO(attachment);
                     }
-                    return attachmentDTO;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-            taskDTO.addAttachments(attachments);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+                }
+                return attachmentDTO;
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        taskDTO.addAttachments(attachments);
         taskDTO.addAttachments(task.getAttachments().stream().map(attachmentMapper::toAttachmentDTO).collect(Collectors.toSet()));
         return taskDTO;
     }

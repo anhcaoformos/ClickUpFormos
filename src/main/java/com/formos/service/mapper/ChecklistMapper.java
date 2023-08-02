@@ -2,6 +2,7 @@ package com.formos.service.mapper;
 
 import com.formos.service.dto.clickup.ChecklistDTO;
 import com.formos.service.dto.clickup.Task;
+import com.formos.service.utils.CommonUtils;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class ChecklistMapper {
         ChecklistDTO checklistDTO = new ChecklistDTO();
         checklistDTO.setId(checklist.id);
         checklistDTO.setName(checklist.name);
-        checklistDTO.setResolved(checklist.resolved);
-        checklistDTO.setUnresolved(checklist.unresolved);
+        checklistDTO.setResolved(CommonUtils.getBooleanValue(checklist.resolved));
+        checklistDTO.setUnresolved(CommonUtils.getBooleanValue(checklist.unresolved));
         checklistDTO.setCreatorId(checklist.creatorId);
         checklistDTO.setOrderIndex(checklist.orderIndex);
         checklistDTO.setItems(

@@ -8,4 +8,5 @@ import net.lingala.zip4j.ZipFile;
 public interface ClickUpService {
     TaskHistory exportPdfForTask(Profile profile, String taskId) throws Exception;
     ZipFile exportPdfForTasks(Long profileId, List<String> taskIds) throws Exception;
+    ZipFile exportPdfForHistory(Long historyId) throws Exception;
 }

@@ -48,8 +48,8 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
                 if (downloadHistory.getTaskId() != null) {
                     existingDownloadHistory.setTaskId(downloadHistory.getTaskId());
                 }
-                if (downloadHistory.getHistoryId() != null) {
-                    existingDownloadHistory.setHistoryId(downloadHistory.getHistoryId());
+                if (downloadHistory.getTimestamp() != null) {
+                    existingDownloadHistory.setTimestamp(downloadHistory.getTimestamp());
                 }
 
                 return existingDownloadHistory;

@@ -17,7 +17,16 @@
             <column name="task_id" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="history_id" type="varchar(255)">
+            <column name="timestamp" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="task_data" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="histories_data" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="children_comment_data" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="profile_id" type="bigint">
@@ -45,7 +54,10 @@
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="task_id" type="string"/>
-            <column name="history_id" type="string"/>
+            <column name="timestamp" type="string"/>
+            <column name="task_data" type="clob"/>
+            <column name="histories_data" type="clob"/>
+            <column name="children_comment_data" type="clob"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

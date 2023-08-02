@@ -44,6 +44,18 @@ public class CommonUtils {
         return Constants.IMAGE_EXTENSION.contains(extension);
     }
 
+    public static boolean getBooleanValue(Object data) {
+        if (data instanceof String) {
+            return Boolean.parseBoolean(data.toString());
+        } else if (data instanceof Boolean) {
+            return (Boolean) data;
+        } else if (data instanceof Integer) {
+            return (Integer) data != 0;
+        } else {
+            return false;
+        }
+    }
+
     private static Color getColorFromName(String colorName) {
         try {
             return (Color) Color.class.getField(colorName.toLowerCase()).get(null);

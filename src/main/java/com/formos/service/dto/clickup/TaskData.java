@@ -1,7 +1,7 @@
 package com.formos.service.dto.clickup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nimbusds.jose.shaded.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +10,7 @@ public class TaskData {
 
     String id;
 
-    @JsonProperty("attachments")
+    @SerializedName("attachments")
     List<TaskComments.Attachment> attachments = new ArrayList<>();
 
     String name;

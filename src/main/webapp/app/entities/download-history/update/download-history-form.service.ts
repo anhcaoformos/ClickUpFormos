@@ -19,7 +19,7 @@ type DownloadHistoryFormDefaults = Pick<NewDownloadHistory, 'id'>;
 type DownloadHistoryFormGroupContent = {
   id: FormControl<IDownloadHistory['id'] | NewDownloadHistory['id']>;
   taskId: FormControl<IDownloadHistory['taskId']>;
-  historyId: FormControl<IDownloadHistory['historyId']>;
+  timestamp: FormControl<IDownloadHistory['timestamp']>;
   profile: FormControl<IDownloadHistory['profile']>;
 };
 
@@ -41,7 +41,7 @@ export class DownloadHistoryFormService {
         }
       ),
       taskId: new FormControl(downloadHistoryRawValue.taskId),
-      historyId: new FormControl(downloadHistoryRawValue.historyId),
+      timestamp: new FormControl(downloadHistoryRawValue.timestamp),
       profile: new FormControl(downloadHistoryRawValue.profile),
     });
   }
