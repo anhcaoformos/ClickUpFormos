@@ -1,14 +1,9 @@
 package com.formos.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.formos.domain.Profile;
 import com.formos.service.dto.clickup.CommentDTO;
-import com.formos.service.dto.clickup.HistoryData;
-import com.formos.service.dto.clickup.TaskComments;
-import com.formos.service.dto.clickup.TaskData;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -18,14 +13,20 @@ public interface ClickUpClientService {
     Object getChildrenComments(String taskId, CommentDTO comment, String childrenCommentEndpoint, Header token) throws URISyntaxException;
     <T> T getRequest(String endpoint, List<NameValuePair> parameters, Header header, Class<T> valueType) throws URISyntaxException;
 
-    <T> T getResponse(Class<T> valueType, HttpClient httpClient, ObjectMapper objectMapper, HttpRequestBase request);
+    <T> T getResponse(Class<T> valueType, HttpClient httpClient, HttpRequestBase request);
     <T, V> T postRequest(String endpoint, V body, Header header, Class<T> valueType);
 
     Object getHistories(String historyEndpoint, Header token, String startId) throws URISyntaxException;
 
     Object getCollapsedHistories(String historyEndpoint, Header header, String startId, String endId) throws URISyntaxException;
 
-    Object getTask(String taskEnpoint, Header token) throws URISyntaxException;
+    Object getTask(String taskEndpoint, Header token) throws URISyntaxException;
 
     String getTaskTitle(Profile profile, String taskId);
+
+    Object getTeams(String teamsEndpoint, Header token) throws URISyntaxException;
+
+    Object getTeam(String teamEndpoint, Header token) throws URISyntaxException;
+
+    Object getTags(String tagsEndpoint, Header token, String projectId) throws URISyntaxException;
 }

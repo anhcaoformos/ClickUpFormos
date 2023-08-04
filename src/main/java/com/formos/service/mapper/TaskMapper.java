@@ -1,11 +1,7 @@
 package com.formos.service.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.formos.config.Constants;
 import com.formos.domain.Profile;
 import com.formos.service.dto.clickup.*;
-import com.formos.service.utils.CommonUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import java.util.ArrayList;
@@ -23,17 +19,23 @@ public class TaskMapper {
     private final AttachmentMapper attachmentMapper;
     private final SubtaskMapper subtaskMapper;
     private final ChecklistMapper checklistMapper;
+    private final TagMapper tagMapper;
+    private final Gson gson;
 
     public TaskMapper(
         CommentMapper commentMapper,
         AttachmentMapper attachmentMapper,
         SubtaskMapper subtaskMapper,
-        ChecklistMapper checklistMapper
+        ChecklistMapper checklistMapper,
+        TagMapper tagMapper,
+        Gson gson
     ) {
         this.commentMapper = commentMapper;
         this.attachmentMapper = attachmentMapper;
         this.subtaskMapper = subtaskMapper;
         this.checklistMapper = checklistMapper;
+        this.tagMapper = tagMapper;
+        this.gson = gson;
     }
 
     public TaskDTO toTaskDTO(Profile profile, TaskData task, TaskHistory taskHistory) {
@@ -53,14 +55,13 @@ public class TaskMapper {
         taskDTO.setTags(
             CollectionUtils.isEmpty(task.getTags())
                 ? new ArrayList<>()
-                : task.getTags().stream().map(TagDTO::new).collect(Collectors.toList())
+                : task.getTags().stream().map(tagMapper::toTagDTO).collect(Collectors.toList())
         );
         taskDTO.setChecklists(
             CollectionUtils.isEmpty(task.getChecklists())
                 ? new ArrayList<>()
                 : task.getChecklists().stream().map(checklistMapper::toChecklistDTO).collect(Collectors.toList())
         );
-        Gson gson = new Gson();
         TaskContentData contentData = gson.fromJson(task.getContent(), TaskContentData.class);
         taskDTO.setDescription(commentMapper.buildContentHtml(profile, taskHistory, contentData));
         Set<AttachmentDTO> attachments = contentData.contentItemData

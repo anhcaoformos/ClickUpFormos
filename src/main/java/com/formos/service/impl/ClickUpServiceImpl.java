@@ -10,10 +10,7 @@ import com.formos.repository.ProfileRepository;
 import com.formos.service.ClickUpClientService;
 import com.formos.service.ClickUpService;
 import com.formos.service.dto.clickup.*;
-import com.formos.service.mapper.AttachmentMapper;
-import com.formos.service.mapper.CommentMapper;
-import com.formos.service.mapper.HistoryMapper;
-import com.formos.service.mapper.TaskMapper;
+import com.formos.service.mapper.*;
 import com.formos.service.utils.FileUtils;
 import com.formos.web.rest.errors.BadRequestAlertException;
 import com.nimbusds.jose.shaded.gson.Gson;
@@ -37,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.util.StringUtils;
@@ -55,8 +51,11 @@ public class ClickUpServiceImpl implements ClickUpService {
     private final DownloadHistoryRepository downloadHistoryRepository;
     private final TaskMapper taskMapper;
     private final CommentMapper commentMapper;
-    private final AttachmentMapper attachmentMapper;
     private final HistoryMapper historyMapper;
+    private final TeamMapper teamMapper;
+    private final ProjectMapper projectMapper;
+    private final TagMapper tagMapper;
+    private final Gson gson;
 
     @Value("${clickup.base-folder}")
     private String baseFolder;
@@ -69,8 +68,11 @@ public class ClickUpServiceImpl implements ClickUpService {
         DownloadHistoryRepository downloadHistoryRepository,
         TaskMapper taskMapper,
         CommentMapper commentMapper,
-        AttachmentMapper attachmentMapper,
-        HistoryMapper historyMapper
+        HistoryMapper historyMapper,
+        TeamMapper teamMapper,
+        ProjectMapper projectMapper,
+        TagMapper tagMapper,
+        Gson gson
     ) {
         this.templateEngine = templateEngine;
         this.clickUpClientService = clickUpClientService;
@@ -79,14 +81,15 @@ public class ClickUpServiceImpl implements ClickUpService {
         this.downloadHistoryRepository = downloadHistoryRepository;
         this.taskMapper = taskMapper;
         this.commentMapper = commentMapper;
-        this.attachmentMapper = attachmentMapper;
         this.historyMapper = historyMapper;
+        this.teamMapper = teamMapper;
+        this.projectMapper = projectMapper;
+        this.tagMapper = tagMapper;
+        this.gson = gson;
     }
 
     @Override
     public TaskHistory exportPdfForTask(Profile profile, String taskId) throws Exception {
-        String taskEndpoint = profile.getBaseUrl() + Constants.TASK_ENDPOINT + taskId;
-
         TokenHistory tokenHistory = getTokenAndHistory(profile, taskId);
 
         if (Objects.isNull(tokenHistory)) {
@@ -94,7 +97,7 @@ public class ClickUpServiceImpl implements ClickUpService {
         }
 
         String currentTime = String.valueOf(Instant.now().getEpochSecond());
-        Gson gson = new Gson();
+        String taskEndpoint = profile.getBaseUrl() + Constants.TASK_ENDPOINT + taskId;
         String originTaskData = gson.toJson(clickUpClientService.getTask(taskEndpoint, tokenHistory.getToken()));
 
         TaskHistory taskHistory = new TaskHistory(baseFolder, taskId, currentTime, originTaskData, tokenHistory.getOriginHistories(), null);
@@ -111,7 +114,6 @@ public class ClickUpServiceImpl implements ClickUpService {
         Map<String, CommentDTO> map = new LinkedHashMap<>();
         List<CommentDTO> allComments = new ArrayList<>();
         Map<String, TaskComments> childrenComments = new HashMap<>();
-        Gson gson = new Gson();
         List<HistoryDTO> historyDTOs = histories
             .stream()
             .map(history -> {
@@ -186,9 +188,13 @@ public class ClickUpServiceImpl implements ClickUpService {
         taskHistory.setChildrenComments(childrenComments);
         Collections.reverse(historyDTOs);
         taskDTO.setHistories(historyDTOs);
+        List<String> attachmentIds = taskDTO.getAttachments().stream().map(AttachmentDTO::getId).collect(Collectors.toList());
         List<CommentDTO> highlightComments = allComments
             .stream()
-            .filter(commentDTO -> map.containsKey(commentDTO.getId()))
+            .filter(commentDTO ->
+                map.containsKey(commentDTO.getId()) &&
+                (Objects.isNull(commentDTO.getCommentAttachmentId()) || attachmentIds.contains(commentDTO.getCommentAttachmentId()))
+            )
             .sorted(Comparator.comparing(CommentDTO::getTimeStamp))
             .collect(Collectors.toList());
         taskDTO.setHighlightComments(highlightComments);
@@ -208,87 +214,6 @@ public class ClickUpServiceImpl implements ClickUpService {
             });
 
         exportPdf(taskDTO, saveDirectoryPath);
-    }
-
-    private TokenHistory getTokenAndHistory(Profile profile, String taskId) throws Exception {
-        int tryTime = 0;
-        JsonObject historyData;
-        Header tokenHeader;
-        Gson gson = new Gson();
-
-        String historyEndpoint = profile.getBaseUrl() + Constants.TASK_ENDPOINT + taskId + "/history";
-        do {
-            if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
-                TokenResponse tokenResponse = getTokenResponse(profile);
-                tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
-                historyData = gson.toJsonTree(clickUpClientService.getHistories(historyEndpoint, tokenHeader, null)).getAsJsonObject();
-                profile.setToken(tokenResponse.token);
-                profileRepository.saveAndFlush(profile);
-            } else {
-                tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
-                historyData = gson.toJsonTree(clickUpClientService.getHistories(historyEndpoint, tokenHeader, null)).getAsJsonObject();
-            }
-            tryTime++;
-        } while (tryTime == 1 && Objects.isNull(historyData));
-        if (Objects.isNull(historyData) || tryTime > 1) {
-            return null;
-        }
-        JsonArray histories = historyData.get("history").getAsJsonArray();
-        String startId = histories.get(histories.size() - 1).getAsJsonObject().get("id").getAsString();
-        JsonArray allHistories = new JsonArray();
-        if (!historyData.get("last_page").getAsBoolean()) {
-            while (!historyData.get("last_page").getAsBoolean()) {
-                historyData = gson.toJsonTree(clickUpClientService.getHistories(historyEndpoint, tokenHeader, startId)).getAsJsonObject();
-                JsonArray nextHistories = historyData.get("history").getAsJsonArray();
-                histories.addAll(nextHistories);
-                startId = nextHistories.get(nextHistories.size() - 1).getAsJsonObject().get("id").getAsString();
-            }
-        }
-
-        explore(historyEndpoint, tokenHeader, allHistories, histories);
-
-        return new TokenHistory(tokenHeader, allHistories);
-    }
-
-    private void explore(String historyEndpoint, Header tokenHeader, JsonArray allHistories, JsonArray histories)
-        throws URISyntaxException {
-        int index = 0;
-        Gson gson = new Gson();
-        while (index < histories.size()) {
-            if ("collapsed_items".equals(histories.get(index).getAsJsonObject().get("field").getAsString())) {
-                int count = histories.get(index).getAsJsonObject().get("count").getAsInt();
-                String startId = null;
-                String endId = null;
-                if (index > 0) {
-                    startId = histories.get(index - 1).getAsJsonObject().get("id").getAsString();
-                }
-                if (index < histories.size() - 1) {
-                    endId = histories.get(index + 1).getAsJsonObject().get("id").getAsString();
-                }
-                JsonObject collapsedHistoryData = gson
-                    .toJsonTree(clickUpClientService.getCollapsedHistories(historyEndpoint, tokenHeader, startId, endId))
-                    .getAsJsonObject();
-                if (Objects.nonNull(collapsedHistoryData) && !collapsedHistoryData.get("history").getAsJsonArray().isEmpty()) {
-                    JsonArray collapsedHistories = collapsedHistoryData.get("history").getAsJsonArray();
-                    explore(historyEndpoint, tokenHeader, allHistories, collapsedHistoryData.get("history").getAsJsonArray());
-                    if (count > 10) {
-                        startId = collapsedHistories.get(collapsedHistories.size() - 1).getAsJsonObject().get("id").getAsString();
-                        JsonObject collapsedHistoryNestedData = gson
-                            .toJsonTree(clickUpClientService.getCollapsedHistories(historyEndpoint, tokenHeader, startId, endId))
-                            .getAsJsonObject();
-                        if (
-                            Objects.nonNull(collapsedHistoryNestedData) &&
-                            !collapsedHistoryNestedData.get("history").getAsJsonArray().isEmpty()
-                        ) {
-                            explore(historyEndpoint, tokenHeader, allHistories, collapsedHistoryNestedData.get("history").getAsJsonArray());
-                        }
-                    }
-                }
-            } else {
-                allHistories.add(histories.get(index));
-            }
-            index++;
-        }
     }
 
     @Override
@@ -314,7 +239,7 @@ public class ClickUpServiceImpl implements ClickUpService {
                 downloadHistory.setTaskData(taskHistory.getOriginTaskData());
                 downloadHistory.setHistoriesData(taskHistory.getOriginHistoriesData());
                 if (!taskHistory.getChildrenComments().isEmpty()) {
-                    downloadHistory.setChildrenCommentData(new Gson().toJson(taskHistory.getChildrenComments()));
+                    downloadHistory.setChildrenCommentData(gson.toJson(taskHistory.getChildrenComments()));
                 }
                 downloadHistoryRepository.save(downloadHistory);
                 File file = new File();
@@ -358,6 +283,194 @@ public class ClickUpServiceImpl implements ClickUpService {
         zipFile.addFolder(taskHistory.getFolder());
         org.apache.commons.io.FileUtils.deleteQuietly(taskHistory.getFolder());
         return zipFile;
+    }
+
+    @Override
+    public List<TeamDTO> getTeams(Long profileId) throws Exception {
+        Profile profile = profileRepository
+            .findById(profileId)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "profile", "idnotfound"));
+        TokenTeams tokenTeam = getTokenAndTeams(profile);
+        if (Objects.isNull(tokenTeam)) {
+            return Collections.emptyList();
+        }
+        List<Team> teams = tokenTeam.getTeams();
+        List<TeamDTO> teamDTOs = teamMapper.toTeamDTOs(teams);
+        teamDTOs.forEach(teamDTO -> {
+            String teamEndpoint = profile.getBaseUrl() + Constants.TEAM_ENDPOINT + "/" + teamDTO.getId() + "/sharedHierarchy";
+            String tagsEndpoint = profile.getBaseUrl() + Constants.TAGS_ENDPOINT;
+            try {
+                JsonObject teamObject = gson.toJsonTree(clickUpClientService.getTeam(teamEndpoint, tokenTeam.getToken())).getAsJsonObject();
+                List<ProjectDTO> projectDTOs = projectMapper.toProjectDTOs(
+                    gson.fromJson(teamObject.get("projects"), new TypeToken<List<Team.Project>>() {}.getType())
+                );
+                for (int index = 0; index < projectDTOs.size(); index++) {
+                    ProjectDTO projectDTO = projectDTOs.get(index);
+                    List<StatusDTO> statusDTOs = teamDTO.getProjects().get(index).getStatuses();
+                    List<UserDTO> userDTOs = teamDTO.getProjects().get(index).getMembers();
+                    JsonObject tagsObject = gson
+                        .toJsonTree(clickUpClientService.getTags(tagsEndpoint, tokenTeam.getToken(), projectDTO.getId()))
+                        .getAsJsonObject();
+                    projectDTO.setTags(
+                        tagMapper.toTagDTOs(gson.fromJson(tagsObject.get("tags"), new TypeToken<List<Task.Tag>>() {}.getType()))
+                    );
+                    projectDTO.setStatuses(statusDTOs);
+                    projectDTO.setMembers(userDTOs);
+                }
+                teamDTO.setProjects(projectDTOs);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        });
+        List<String> projectIds = teamDTOs
+            .stream()
+            .map(TeamDTO::getProjects)
+            .map(projectDTOS -> projectDTOS.stream().map(ProjectDTO::getId).collect(Collectors.toList()))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+
+        return teamDTOs;
+    }
+
+    @Override
+    public TeamDTO getTeam(Long profileId, String teamId) throws Exception {
+        Profile profile = profileRepository
+            .findById(profileId)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "profile", "idnotfound"));
+        TokenTeam tokenTeam = getTokenAndTeam(profile, teamId);
+        if (Objects.isNull(tokenTeam)) {
+            return null;
+        }
+        Team team = tokenTeam.getTeam();
+        return teamMapper.toTeamDTO(team);
+    }
+
+    private TokenTeams getTokenAndTeams(Profile profile) throws Exception {
+        int tryTime = 0;
+        JsonArray teamData;
+        Header tokenHeader;
+        String teamsEndpoint = profile.getBaseUrl() + Constants.TEAMS_ENDPOINT;
+        do {
+            if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
+                TokenResponse tokenResponse = getTokenResponse(profile);
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
+                teamData = gson.toJsonTree(clickUpClientService.getTeams(teamsEndpoint, tokenHeader)).getAsJsonArray();
+                profile.setToken(tokenResponse.token);
+                profileRepository.saveAndFlush(profile);
+            } else {
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
+                teamData = gson.toJsonTree(clickUpClientService.getTeams(teamsEndpoint, tokenHeader)).getAsJsonArray();
+            }
+            tryTime++;
+        } while (tryTime == 1 && Objects.isNull(teamData));
+        if (Objects.isNull(teamData) || tryTime > 1) {
+            return null;
+        }
+
+        return new TokenTeams(tokenHeader, teamData);
+    }
+
+    private TokenTeam getTokenAndTeam(Profile profile, String teamId) throws Exception {
+        int tryTime = 0;
+        JsonObject teamData;
+        Header tokenHeader;
+        String teamEndpoint = profile.getBaseUrl() + Constants.TEAM_ENDPOINT + "/" + teamId + "/sharedHierarchy";
+        do {
+            if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
+                TokenResponse tokenResponse = getTokenResponse(profile);
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
+                teamData = gson.toJsonTree(clickUpClientService.getTeam(teamEndpoint, tokenHeader)).getAsJsonObject();
+                profile.setToken(tokenResponse.token);
+                profileRepository.saveAndFlush(profile);
+            } else {
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
+                teamData = gson.toJsonTree(clickUpClientService.getTeam(teamEndpoint, tokenHeader)).getAsJsonObject();
+            }
+            tryTime++;
+        } while (tryTime == 1 && Objects.isNull(teamData));
+        if (Objects.isNull(teamData) || tryTime > 1) {
+            return null;
+        }
+
+        return new TokenTeam(tokenHeader, teamData);
+    }
+
+    private TokenHistory getTokenAndHistory(Profile profile, String taskId) throws Exception {
+        int tryTime = 0;
+        JsonObject historyData;
+        Header tokenHeader;
+        String historyEndpoint = profile.getBaseUrl() + Constants.TASK_ENDPOINT + taskId + "/history";
+        do {
+            if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
+                TokenResponse tokenResponse = getTokenResponse(profile);
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
+                historyData = gson.toJsonTree(clickUpClientService.getHistories(historyEndpoint, tokenHeader, null)).getAsJsonObject();
+                profile.setToken(tokenResponse.token);
+                profileRepository.saveAndFlush(profile);
+            } else {
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
+                historyData = gson.toJsonTree(clickUpClientService.getHistories(historyEndpoint, tokenHeader, null)).getAsJsonObject();
+            }
+            tryTime++;
+        } while (tryTime == 1 && Objects.isNull(historyData));
+        if (Objects.isNull(historyData) || tryTime > 1) {
+            return null;
+        }
+        JsonArray histories = historyData.get("history").getAsJsonArray();
+        String startId = histories.get(histories.size() - 1).getAsJsonObject().get("id").getAsString();
+        JsonArray allHistories = new JsonArray();
+        if (!historyData.get("last_page").getAsBoolean()) {
+            while (!historyData.get("last_page").getAsBoolean()) {
+                historyData = gson.toJsonTree(clickUpClientService.getHistories(historyEndpoint, tokenHeader, startId)).getAsJsonObject();
+                JsonArray nextHistories = historyData.get("history").getAsJsonArray();
+                histories.addAll(nextHistories);
+                startId = nextHistories.get(nextHistories.size() - 1).getAsJsonObject().get("id").getAsString();
+            }
+        }
+
+        explore(historyEndpoint, tokenHeader, allHistories, histories);
+
+        return new TokenHistory(tokenHeader, allHistories);
+    }
+
+    private void explore(String historyEndpoint, Header tokenHeader, JsonArray allHistories, JsonArray histories)
+        throws URISyntaxException {
+        int index = 0;
+        while (index < histories.size()) {
+            if ("collapsed_items".equals(histories.get(index).getAsJsonObject().get("field").getAsString())) {
+                int count = histories.get(index).getAsJsonObject().get("count").getAsInt();
+                String startId = null;
+                String endId = null;
+                if (index > 0) {
+                    startId = histories.get(index - 1).getAsJsonObject().get("id").getAsString();
+                }
+                if (index < histories.size() - 1) {
+                    endId = histories.get(index + 1).getAsJsonObject().get("id").getAsString();
+                }
+                JsonObject collapsedHistoryData = gson
+                    .toJsonTree(clickUpClientService.getCollapsedHistories(historyEndpoint, tokenHeader, startId, endId))
+                    .getAsJsonObject();
+                if (Objects.nonNull(collapsedHistoryData) && !collapsedHistoryData.get("history").getAsJsonArray().isEmpty()) {
+                    JsonArray collapsedHistories = collapsedHistoryData.get("history").getAsJsonArray();
+                    explore(historyEndpoint, tokenHeader, allHistories, collapsedHistoryData.get("history").getAsJsonArray());
+                    if (count > 10) {
+                        startId = collapsedHistories.get(collapsedHistories.size() - 1).getAsJsonObject().get("id").getAsString();
+                        JsonObject collapsedHistoryNestedData = gson
+                            .toJsonTree(clickUpClientService.getCollapsedHistories(historyEndpoint, tokenHeader, startId, endId))
+                            .getAsJsonObject();
+                        if (
+                            Objects.nonNull(collapsedHistoryNestedData) &&
+                            !collapsedHistoryNestedData.get("history").getAsJsonArray().isEmpty()
+                        ) {
+                            explore(historyEndpoint, tokenHeader, allHistories, collapsedHistoryNestedData.get("history").getAsJsonArray());
+                        }
+                    }
+                }
+            } else {
+                allHistories.add(histories.get(index));
+            }
+            index++;
+        }
     }
 
     private TokenResponse getTokenResponse(Profile profile) {

@@ -3,7 +3,6 @@ package com.formos.service.mapper;
 import com.formos.config.Constants;
 import com.formos.domain.Profile;
 import com.formos.service.ClickUpClientService;
-import com.formos.service.dto.clickup.AttributesDTO;
 import com.formos.service.dto.clickup.ContentItemDTO;
 import com.formos.service.dto.clickup.TaskComments;
 import com.formos.service.dto.clickup.TaskContentItemData;
@@ -19,10 +18,12 @@ public class ContentItemMapper {
 
     private final ClickUpClientService clickUpClientService;
     private final AttributeMapper attributeMapper;
+    private final Gson gson;
 
-    public ContentItemMapper(ClickUpClientService clickUpClientService, AttributeMapper attributeMapper) {
+    public ContentItemMapper(ClickUpClientService clickUpClientService, AttributeMapper attributeMapper, Gson gson) {
         this.clickUpClientService = clickUpClientService;
         this.attributeMapper = attributeMapper;
+        this.gson = gson;
     }
 
     public ContentItemDTO toContentItemDTO(TaskComments.CommentItem commentItem) {
@@ -52,7 +53,6 @@ public class ContentItemMapper {
         if (taskContentItemData.content instanceof String) {
             contentItemDTO.setText(taskContentItemData.content.toString());
         } else if (taskContentItemData.content instanceof HashMap) {
-            Gson gson = new Gson();
             JsonObject content = gson.toJsonTree(taskContentItemData.content).getAsJsonObject();
             if (content.has("attachment")) {
                 JsonObject attachment = content.get("attachment").getAsJsonObject();

@@ -12,6 +12,12 @@ import org.springframework.util.CollectionUtils;
 @Service
 public class SubtaskMapper {
 
+    private final TagMapper tagMapper;
+
+    public SubtaskMapper(TagMapper tagMapper) {
+        this.tagMapper = tagMapper;
+    }
+
     public SubtaskDTO toSubtaskDTO(Task.Subtask subtask) {
         SubtaskDTO subtaskDTO = new SubtaskDTO();
         subtaskDTO.setId(subtask.id);
@@ -21,7 +27,9 @@ public class SubtaskMapper {
         subtaskDTO.setPriority(Objects.nonNull(subtask.priority) ? subtask.priority.priority : null);
         subtaskDTO.setPriorityColor(Objects.nonNull(subtask.priority) ? subtask.priority.color : "none");
         subtaskDTO.setTags(
-            CollectionUtils.isEmpty(subtask.tags) ? new ArrayList<>() : subtask.tags.stream().map(TagDTO::new).collect(Collectors.toList())
+            CollectionUtils.isEmpty(subtask.tags)
+                ? new ArrayList<>()
+                : subtask.tags.stream().map(tagMapper::toTagDTO).collect(Collectors.toList())
         );
         subtaskDTO.setAssignees(
             CollectionUtils.isEmpty(subtask.assignees)

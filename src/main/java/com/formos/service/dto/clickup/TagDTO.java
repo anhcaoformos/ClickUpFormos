@@ -1,8 +1,5 @@
 package com.formos.service.dto.clickup;
 
-import com.formos.service.utils.CommonUtils;
-import java.util.Objects;
-
 public class TagDTO {
 
     private Long creatorId;
@@ -10,12 +7,7 @@ public class TagDTO {
     private String tagBackground;
     private String tagForeground;
 
-    public TagDTO(Task.Tag tag) {
-        this.creatorId = tag.creatorId;
-        this.name = tag.name;
-        this.tagBackground = tag.tagBackground;
-        this.tagForeground = CommonUtils.decreaseSaturation(this.tagBackground);
-    }
+    public TagDTO() {}
 
     public Long getCreatorId() {
         return creatorId;

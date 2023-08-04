@@ -1,17 +1,17 @@
 package com.formos.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.formos.config.Constants;
 import com.formos.domain.Profile;
 import com.formos.service.ClickUpClientService;
-import com.formos.service.dto.clickup.*;
-import com.formos.service.mapper.CommentMapper;
+import com.formos.service.dto.clickup.CommentDTO;
+import com.formos.service.dto.clickup.Task;
 import com.nimbusds.jose.shaded.gson.Gson;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -31,6 +31,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClickUpClientServiceImpl implements ClickUpClientService {
 
+    private final Gson gson;
+
+    public ClickUpClientServiceImpl(Gson gson) {
+        this.gson = gson;
+    }
+
     public Object getChildrenComments(String taskId, CommentDTO comment, String childrenCommentEndpoint, Header token)
         throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
@@ -44,17 +50,16 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
     public <T> T getRequest(String endpoint, List<NameValuePair> parameters, Header header, Class<T> valueType) throws URISyntaxException {
         HttpClient httpClient = HttpClientBuilder.create().build();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         HttpGet request = new HttpGet(endpoint);
         request.addHeader(header);
         if (Objects.nonNull(parameters) && !parameters.isEmpty()) {
             URI uri = new URIBuilder(request.getURI()).addParameters(parameters).build();
             request.setURI(uri);
         }
-        return getResponse(valueType, httpClient, objectMapper, request);
+        return getResponse(valueType, httpClient, request);
     }
 
-    public <T> T getResponse(Class<T> valueType, HttpClient httpClient, ObjectMapper objectMapper, HttpRequestBase request) {
+    public <T> T getResponse(Class<T> valueType, HttpClient httpClient, HttpRequestBase request) {
         try {
             HttpResponse response = httpClient.execute(request);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -62,7 +67,7 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
             if (statusCode == 200) {
                 HttpEntity entity = response.getEntity();
                 String responseBody = EntityUtils.toString(entity);
-                return objectMapper.readValue(responseBody, valueType);
+                return gson.fromJson(responseBody, valueType);
             } else {
                 System.out.println("Request failed with status code: " + statusCode);
                 return null;
@@ -78,10 +83,8 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
 
         HttpPost request = new HttpPost(endpoint);
         request.addHeader(header);
-        ObjectMapper objectMapper = new ObjectMapper();
 
         if (Objects.nonNull(body)) {
-            Gson gson = new Gson();
             String requestBody = gson.toJson(body);
 
             StringEntity entity = new StringEntity(requestBody, "UTF-8");
@@ -89,7 +92,7 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
             request.setEntity(entity);
         }
 
-        return getResponse(valueType, httpClient, objectMapper, request);
+        return getResponse(valueType, httpClient, request);
     }
 
     public Object getHistories(String historyEndpoint, Header token, String startId) throws URISyntaxException {
@@ -300,5 +303,21 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
             e.printStackTrace();
             return "";
         }
+    }
+
+    public Object getTeams(String teamsEndpoint, Header token) throws URISyntaxException {
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("include_projects", Boolean.TRUE.toString()));
+        return getRequest(teamsEndpoint, parameters, token, Object.class);
+    }
+
+    public Object getTeam(String teamEndpoint, Header token) throws URISyntaxException {
+        return getRequest(teamEndpoint, null, token, Object.class);
+    }
+
+    public Object getTags(String tagsEndpoint, Header token, String projectId) throws URISyntaxException {
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("project_id", projectId));
+        return getRequest(tagsEndpoint, parameters, token, Object.class);
     }
 }

@@ -20,10 +20,12 @@ public class HistoryMapper {
 
     private final AttachmentMapper attachmentMapper;
     private final CommentMapper commentMapper;
+    private final Gson gson;
 
-    public HistoryMapper(AttachmentMapper attachmentMapper, CommentMapper commentMapper) {
+    public HistoryMapper(AttachmentMapper attachmentMapper, CommentMapper commentMapper, Gson gson) {
         this.attachmentMapper = attachmentMapper;
         this.commentMapper = commentMapper;
+        this.gson = gson;
     }
 
     public HistoryDTO toHistoryDTO(TaskHistory taskHistory, History history) {
@@ -70,7 +72,6 @@ public class HistoryMapper {
         if (Objects.nonNull(history.user) && Objects.nonNull(history.customField)) {
             customFieldDescription.append(history.user.username);
             customFieldDescription.append(" set ");
-            Gson gson = new Gson();
             JsonObject customField = gson.toJsonTree(history.customField).getAsJsonObject();
             customFieldDescription.append(CommonUtils.getStringPropertyOfJsonObject(customField, "name"));
             customFieldDescription.append(" to ");
@@ -100,7 +101,6 @@ public class HistoryMapper {
         if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
             followerAddDescription.append(history.user.username);
             followerAddDescription.append(" added watcher: ");
-            Gson gson = new Gson();
             JsonObject assignee = gson.toJsonTree(history.after).getAsJsonObject();
             followerAddDescription.append(CommonUtils.getStringPropertyOfJsonObject(assignee, "username"));
         }
@@ -112,7 +112,6 @@ public class HistoryMapper {
         if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
             assigneeAddDescription.append(history.user.username);
             assigneeAddDescription.append(" assigned to: ");
-            Gson gson = new Gson();
             JsonObject assignee = gson.toJsonTree(history.after).getAsJsonObject();
             assigneeAddDescription.append(CommonUtils.getStringPropertyOfJsonObject(assignee, "username"));
         }
@@ -124,7 +123,6 @@ public class HistoryMapper {
         if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
             sectionMovedDescription.append(history.user.username);
             sectionMovedDescription.append(" changed the home list from ");
-            Gson gson = new Gson();
             JsonObject sectionBefore = gson.toJsonTree(history.before).getAsJsonObject();
             sectionMovedDescription.append(CommonUtils.getStringPropertyOfJsonObject(sectionBefore, "name"));
             sectionMovedDescription.append(" to ");
@@ -149,7 +147,6 @@ public class HistoryMapper {
             tagDescription.append("<div class=\"row_start\">");
             tagDescription.append("<div class=\"mr10px\">");
             tagDescription.append(history.user.username);
-            Gson gson = new Gson();
             JsonArray tags = gson.toJsonTree(history.after).getAsJsonArray();
             if (tags.size() == 1) {
                 tagDescription.append(" added tag ");
@@ -180,7 +177,6 @@ public class HistoryMapper {
             tagRemoveDescription.append("<div class=\"row_start\">");
             tagRemoveDescription.append("<div class=\"mr10px\">");
             tagRemoveDescription.append(history.user.username);
-            Gson gson = new Gson();
             JsonArray tags = gson.toJsonTree(history.before).getAsJsonArray();
             if (tags.size() == 1) {
                 tagRemoveDescription.append(" removed tag ");
@@ -220,7 +216,6 @@ public class HistoryMapper {
         if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
             priorityDescription.append(history.user.username);
             priorityDescription.append(" set priority to ");
-            Gson gson = new Gson();
             JsonObject priority = gson.toJsonTree(history.after).getAsJsonObject();
             priorityDescription.append(WordUtils.capitalize(CommonUtils.getStringPropertyOfJsonObject(priority, "priority")));
         }
@@ -285,7 +280,6 @@ public class HistoryMapper {
         ) {
             checklistItemAssigneeDescription.append(history.user.username);
             checklistItemAssigneeDescription.append(" assigned ");
-            Gson gson = new Gson();
             JsonObject assignee = gson.toJsonTree(history.after).getAsJsonObject();
             checklistItemAssigneeDescription.append(CommonUtils.getStringPropertyOfJsonObject(assignee, "username"));
             checklistItemAssigneeDescription.append(" to ");
@@ -300,7 +294,6 @@ public class HistoryMapper {
         StringBuilder newSubtaskDescription = new StringBuilder();
         if (Objects.nonNull(history.user) && Objects.nonNull(history.after)) {
             newSubtaskDescription.append(history.user.username);
-            Gson gson = new Gson();
             JsonObject subtask = gson.toJsonTree(history.after).getAsJsonObject();
             newSubtaskDescription.append(" created subtask: ");
             String subtaskId = CommonUtils.getStringPropertyOfJsonObject(subtask, "id");
@@ -315,7 +308,6 @@ public class HistoryMapper {
         StringBuilder changeStatusDescription = new StringBuilder();
         if (Objects.nonNull(history.user) && Objects.nonNull(history.after) && Objects.nonNull(history.before)) {
             changeStatusDescription.append(history.user.username);
-            Gson gson = new Gson();
             changeStatusDescription.append(" change status from ");
             JsonObject beforeObject = gson.toJsonTree(history.before).getAsJsonObject();
             changeStatusDescription.append(WordUtils.capitalize(CommonUtils.getStringPropertyOfJsonObject(beforeObject, "status")));

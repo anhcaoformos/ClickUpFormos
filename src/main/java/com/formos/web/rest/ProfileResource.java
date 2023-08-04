@@ -1,33 +1,28 @@
 package com.formos.web.rest;
 
 import com.formos.domain.Profile;
-import com.formos.domain.User;
 import com.formos.repository.ProfileRepository;
 import com.formos.service.ClickUpService;
 import com.formos.service.ProfileService;
-import com.formos.service.UserService;
+import com.formos.service.dto.clickup.ProjectDTO;
+import com.formos.service.dto.clickup.TeamDTO;
 import com.formos.web.rest.errors.BadRequestAlertException;
 import jakarta.activation.MimetypesFileTypeMap;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -220,5 +215,17 @@ public class ProfileResource {
         OutputStream outputStream = response.getOutputStream();
         IOUtils.copy(new ByteArrayInputStream(data), outputStream);
         outputStream.flush();
+    }
+
+    @GetMapping("/profiles/{id}/team")
+    public List<TeamDTO> getTeams(@PathVariable Long id) throws Exception {
+        log.debug("REST request to get Profile : {}", id);
+        return clickUpService.getTeams(id);
+    }
+
+    @GetMapping("/profiles/{id}/project/{projectId}")
+    public TeamDTO getTeam(@PathVariable Long id, @PathVariable String projectId) throws Exception {
+        log.debug("REST request to get Profile : {}", id);
+        return clickUpService.getTeam(id, projectId);
     }
 }
