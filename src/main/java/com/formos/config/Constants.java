@@ -54,6 +54,8 @@ public final class Constants {
     public static final String TEAMS_ENDPOINT = "/team/v1/team";
     public static final String TEAM_ENDPOINT = "/hierarchy/v1/team";
     public static final String TAGS_ENDPOINT = "/tasks/v1/tag";
+    public static final String SUBCATEGORY_ENDPOINT = "/hierarchy/v1/subcategory";
+    public static final String VIEW_ENDPOINT = "/view/v1/genericView";
     //        public static final String TASK_ENDPOINT = "https://app.clickup.com/tasks/v1/task/";
     //        public static final String REPLY_ENDPOINT = "https://app.clickup.com/comments/v2/comment";
 

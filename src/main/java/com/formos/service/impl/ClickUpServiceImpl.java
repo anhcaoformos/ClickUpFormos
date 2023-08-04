@@ -11,6 +11,7 @@ import com.formos.service.ClickUpClientService;
 import com.formos.service.ClickUpService;
 import com.formos.service.dto.clickup.*;
 import com.formos.service.mapper.*;
+import com.formos.service.utils.CommonUtils;
 import com.formos.service.utils.FileUtils;
 import com.formos.web.rest.errors.BadRequestAlertException;
 import com.nimbusds.jose.shaded.gson.Gson;
@@ -290,109 +291,105 @@ public class ClickUpServiceImpl implements ClickUpService {
         Profile profile = profileRepository
             .findById(profileId)
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", "profile", "idnotfound"));
-        TokenTeams tokenTeam = getTokenAndTeams(profile);
-        if (Objects.isNull(tokenTeam)) {
+        TokenTeams tokenTeams = getTokenAndTeams(profile);
+        if (Objects.isNull(tokenTeams)) {
             return Collections.emptyList();
         }
-        List<Team> teams = tokenTeam.getTeams();
+        List<Team> teams = tokenTeams.getTeams();
         List<TeamDTO> teamDTOs = teamMapper.toTeamDTOs(teams);
         teamDTOs.forEach(teamDTO -> {
             String teamEndpoint = profile.getBaseUrl() + Constants.TEAM_ENDPOINT + "/" + teamDTO.getId() + "/sharedHierarchy";
-            String tagsEndpoint = profile.getBaseUrl() + Constants.TAGS_ENDPOINT;
             try {
-                JsonObject teamObject = gson.toJsonTree(clickUpClientService.getTeam(teamEndpoint, tokenTeam.getToken())).getAsJsonObject();
-                List<ProjectDTO> projectDTOs = projectMapper.toProjectDTOs(
-                    gson.fromJson(teamObject.get("projects"), new TypeToken<List<Team.Project>>() {}.getType())
-                );
-                for (int index = 0; index < projectDTOs.size(); index++) {
-                    ProjectDTO projectDTO = projectDTOs.get(index);
-                    List<StatusDTO> statusDTOs = teamDTO.getProjects().get(index).getStatuses();
-                    List<UserDTO> userDTOs = teamDTO.getProjects().get(index).getMembers();
-                    JsonObject tagsObject = gson
-                        .toJsonTree(clickUpClientService.getTags(tagsEndpoint, tokenTeam.getToken(), projectDTO.getId()))
-                        .getAsJsonObject();
-                    projectDTO.setTags(
-                        tagMapper.toTagDTOs(gson.fromJson(tagsObject.get("tags"), new TypeToken<List<Task.Tag>>() {}.getType()))
-                    );
-                    projectDTO.setStatuses(statusDTOs);
-                    projectDTO.setMembers(userDTOs);
+                Object teamData = clickUpClientService.getTeam(teamEndpoint, tokenTeams.getToken());
+                if (Objects.nonNull(teamData)) {
+                    JsonObject teamObject = gson.toJsonTree(teamData).getAsJsonObject();
+                    JsonArray projectsArray = CommonUtils.getJsonArrayByProperty(teamObject, "projects");
+                    if (Objects.nonNull(projectsArray) && !projectsArray.isEmpty()) {
+                        List<Team.Project> projects = gson.fromJson(projectsArray, new TypeToken<List<Team.Project>>() {}.getType());
+                        List<ProjectDTO> projectDTOS = projectMapper.toProjectDTOs(projects);
+                        teamDTO.setProjects(projectDTOS);
+                    }
                 }
-                teamDTO.setProjects(projectDTOs);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
         });
-        List<String> projectIds = teamDTOs
-            .stream()
-            .map(TeamDTO::getProjects)
-            .map(projectDTOS -> projectDTOS.stream().map(ProjectDTO::getId).collect(Collectors.toList()))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
-
         return teamDTOs;
     }
 
-    @Override
-    public TeamDTO getTeam(Long profileId, String teamId) throws Exception {
+    public List<String> getTaskIds(Long profileId, String subCategoryId) throws Exception {
         Profile profile = profileRepository
             .findById(profileId)
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", "profile", "idnotfound"));
-        TokenTeam tokenTeam = getTokenAndTeam(profile, teamId);
-        if (Objects.isNull(tokenTeam)) {
+        List<String> taskIds = new LinkedList<>();
+        String subCategoryEndpoint = profile.getBaseUrl() + Constants.SUBCATEGORY_ENDPOINT + "/" + subCategoryId;
+        int tryTime = 0;
+        Object subCategory;
+        Header tokenHeader;
+        do {
+            if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
+                TokenResponse tokenResponse = getTokenResponse(profile);
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
+                subCategory = clickUpClientService.getSubCategory(subCategoryEndpoint, tokenHeader);
+                profile.setToken(tokenResponse.token);
+                profileRepository.saveAndFlush(profile);
+            } else {
+                tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
+                subCategory = clickUpClientService.getSubCategory(subCategoryEndpoint, tokenHeader);
+            }
+            tryTime++;
+        } while (tryTime == 1 && Objects.isNull(subCategory));
+        if (Objects.isNull(subCategory) || tryTime > 1) {
             return null;
         }
-        Team team = tokenTeam.getTeam();
-        return teamMapper.toTeamDTO(team);
+        JsonObject subCategoryObject = gson
+            .toJsonTree(clickUpClientService.getSubCategory(subCategoryEndpoint, tokenHeader))
+            .getAsJsonObject();
+        JsonObject standardViewsObject = CommonUtils.getJsonObjectByProperty(subCategoryObject, "standard_views");
+        JsonObject listObject = CommonUtils.getJsonObjectByProperty(standardViewsObject, "list");
+        String viewId = CommonUtils.getStringPropertyOfJsonObject(listObject, "id");
+        if (Objects.isNull(viewId)) {
+            viewId = "list-" + subCategoryId;
+        }
+        String viewEndpoint = profile.getBaseUrl() + Constants.VIEW_ENDPOINT;
+        Object view = clickUpClientService.getView(viewEndpoint, tokenHeader, subCategoryId, viewId);
+        if (Objects.nonNull(view)) {
+            JsonObject viewObject = gson.toJsonTree(view).getAsJsonObject();
+            JsonArray groupObject = CommonUtils.getJsonArrayByProperty(CommonUtils.getJsonObjectByProperty(viewObject, "list"), "groups");
+            JsonArray taskIdsArray = Objects.nonNull(groupObject) && !groupObject.isEmpty()
+                ? CommonUtils.getJsonArrayByProperty(groupObject.get(0).getAsJsonObject(), "task_ids")
+                : null;
+            if (Objects.nonNull(taskIdsArray) && !taskIdsArray.isEmpty()) {
+                taskIdsArray.forEach(taskIdElement -> taskIds.add(taskIdElement.getAsString()));
+            }
+        }
+        return taskIds;
     }
 
     private TokenTeams getTokenAndTeams(Profile profile) throws Exception {
         int tryTime = 0;
-        JsonArray teamData;
+
+        Object teamDataObject;
         Header tokenHeader;
         String teamsEndpoint = profile.getBaseUrl() + Constants.TEAMS_ENDPOINT;
         do {
             if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
                 TokenResponse tokenResponse = getTokenResponse(profile);
                 tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
-                teamData = gson.toJsonTree(clickUpClientService.getTeams(teamsEndpoint, tokenHeader)).getAsJsonArray();
+                teamDataObject = clickUpClientService.getTeams(teamsEndpoint, tokenHeader);
                 profile.setToken(tokenResponse.token);
                 profileRepository.saveAndFlush(profile);
             } else {
                 tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
-                teamData = gson.toJsonTree(clickUpClientService.getTeams(teamsEndpoint, tokenHeader)).getAsJsonArray();
+                teamDataObject = clickUpClientService.getTeams(teamsEndpoint, tokenHeader);
             }
             tryTime++;
-        } while (tryTime == 1 && Objects.isNull(teamData));
-        if (Objects.isNull(teamData) || tryTime > 1) {
+        } while (tryTime == 1 && Objects.isNull(teamDataObject));
+        if (Objects.isNull(teamDataObject) || tryTime > 1) {
             return null;
         }
-
+        JsonArray teamData = gson.toJsonTree(teamDataObject).getAsJsonArray();
         return new TokenTeams(tokenHeader, teamData);
-    }
-
-    private TokenTeam getTokenAndTeam(Profile profile, String teamId) throws Exception {
-        int tryTime = 0;
-        JsonObject teamData;
-        Header tokenHeader;
-        String teamEndpoint = profile.getBaseUrl() + Constants.TEAM_ENDPOINT + "/" + teamId + "/sharedHierarchy";
-        do {
-            if (StringUtils.isEmpty(profile.getToken()) || tryTime == 1) {
-                TokenResponse tokenResponse = getTokenResponse(profile);
-                tokenHeader = new BasicHeader("Authorization", "Bearer " + tokenResponse.token);
-                teamData = gson.toJsonTree(clickUpClientService.getTeam(teamEndpoint, tokenHeader)).getAsJsonObject();
-                profile.setToken(tokenResponse.token);
-                profileRepository.saveAndFlush(profile);
-            } else {
-                tokenHeader = new BasicHeader("Authorization", "Bearer " + profile.getToken());
-                teamData = gson.toJsonTree(clickUpClientService.getTeam(teamEndpoint, tokenHeader)).getAsJsonObject();
-            }
-            tryTime++;
-        } while (tryTime == 1 && Objects.isNull(teamData));
-        if (Objects.isNull(teamData) || tryTime > 1) {
-            return null;
-        }
-
-        return new TokenTeam(tokenHeader, teamData);
     }
 
     private TokenHistory getTokenAndHistory(Profile profile, String taskId) throws Exception {

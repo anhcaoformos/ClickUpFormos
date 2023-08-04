@@ -5,6 +5,7 @@ import com.formos.repository.ProfileRepository;
 import com.formos.service.ClickUpService;
 import com.formos.service.ProfileService;
 import com.formos.service.dto.clickup.ProjectDTO;
+import com.formos.service.dto.clickup.SubCategoryDTO;
 import com.formos.service.dto.clickup.TeamDTO;
 import com.formos.web.rest.errors.BadRequestAlertException;
 import jakarta.activation.MimetypesFileTypeMap;
@@ -223,9 +224,9 @@ public class ProfileResource {
         return clickUpService.getTeams(id);
     }
 
-    @GetMapping("/profiles/{id}/project/{projectId}")
-    public TeamDTO getTeam(@PathVariable Long id, @PathVariable String projectId) throws Exception {
+    @GetMapping("/profiles/{id}/subcategory/{subCategoryId}/tasks")
+    public List<String> getTaskIds(@PathVariable Long id, @PathVariable String subCategoryId) throws Exception {
         log.debug("REST request to get Profile : {}", id);
-        return clickUpService.getTeam(id, projectId);
+        return clickUpService.getTaskIds(id, subCategoryId);
     }
 }

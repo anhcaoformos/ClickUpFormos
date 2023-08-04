@@ -1,9 +1,12 @@
 package com.formos.service.dto.clickup;
 
+import java.util.List;
+
 public class SubCategoryDTO {
 
     private String id;
     private String name;
+    private List<String> taskIds;
 
     public SubCategoryDTO() {}
 
@@ -21,5 +24,13 @@ public class SubCategoryDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<String> getTaskIds() {
+        return taskIds;
+    }
+
+    public void setTaskIds(List<String> taskIds) {
+        this.taskIds = taskIds;
     }
 }

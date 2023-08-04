@@ -1,6 +1,7 @@
 package com.formos.service.utils;
 
 import com.formos.config.Constants;
+import com.nimbusds.jose.shaded.gson.JsonArray;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import java.awt.*;
 import java.time.Instant;
@@ -16,7 +17,15 @@ public class CommonUtils {
     }
 
     public static String getStringPropertyOfJsonObject(JsonObject jsonObject, String propertyName) {
-        return jsonObject.has(propertyName) ? jsonObject.get(propertyName).getAsString() : null;
+        return Objects.nonNull(jsonObject) && jsonObject.has(propertyName) ? jsonObject.get(propertyName).getAsString() : null;
+    }
+
+    public static JsonObject getJsonObjectByProperty(JsonObject jsonObject, String propertyName) {
+        return Objects.nonNull(jsonObject) && jsonObject.has(propertyName) ? jsonObject.get(propertyName).getAsJsonObject() : null;
+    }
+
+    public static JsonArray getJsonArrayByProperty(JsonObject jsonObject, String propertyName) {
+        return Objects.nonNull(jsonObject) && jsonObject.has(propertyName) ? jsonObject.get(propertyName).getAsJsonArray() : null;
     }
 
     public static String formatToDateTimeFromTimestamp(String timestamp, String pattern) {

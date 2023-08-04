@@ -28,5 +28,7 @@ public interface ClickUpClientService {
 
     Object getTeam(String teamEndpoint, Header token) throws URISyntaxException;
 
-    Object getTags(String tagsEndpoint, Header token, String projectId) throws URISyntaxException;
+    Object getSubCategory(String subCategoryEndpoint, Header token) throws URISyntaxException;
+
+    Object getView(String viewEndpoint, Header token, String subCategoryId, String viewId) throws URISyntaxException;
 }

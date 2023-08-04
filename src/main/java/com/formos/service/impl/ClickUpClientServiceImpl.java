@@ -5,6 +5,7 @@ import com.formos.domain.Profile;
 import com.formos.service.ClickUpClientService;
 import com.formos.service.dto.clickup.CommentDTO;
 import com.formos.service.dto.clickup.Task;
+import com.formos.service.dto.clickup.ViewRequest;
 import com.nimbusds.jose.shaded.gson.Gson;
 import java.io.IOException;
 import java.net.URI;
@@ -56,6 +57,29 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
             URI uri = new URIBuilder(request.getURI()).addParameters(parameters).build();
             request.setURI(uri);
         }
+        return getResponse(valueType, httpClient, request);
+    }
+
+    public <T, V> T postRequestWithParameters(String endpoint, List<NameValuePair> parameters, V body, Header header, Class<T> valueType)
+        throws URISyntaxException {
+        HttpClient httpClient = HttpClientBuilder.create().build();
+
+        HttpPost request = new HttpPost(endpoint);
+        request.addHeader(header);
+
+        if (Objects.nonNull(parameters) && !parameters.isEmpty()) {
+            URI uri = new URIBuilder(request.getURI()).addParameters(parameters).build();
+            request.setURI(uri);
+        }
+
+        if (Objects.nonNull(body)) {
+            String requestBody = gson.toJson(body);
+
+            StringEntity entity = new StringEntity(requestBody, "UTF-8");
+            entity.setContentType("application/json");
+            request.setEntity(entity);
+        }
+
         return getResponse(valueType, httpClient, request);
     }
 
@@ -315,9 +339,19 @@ public class ClickUpClientServiceImpl implements ClickUpClientService {
         return getRequest(teamEndpoint, null, token, Object.class);
     }
 
-    public Object getTags(String tagsEndpoint, Header token, String projectId) throws URISyntaxException {
+    public Object getSubCategory(String subCategoryEndpoint, Header token) throws URISyntaxException {
         List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("project_id", projectId));
-        return getRequest(tagsEndpoint, parameters, token, Object.class);
+        parameters.add(new BasicNameValuePair("include_views", Boolean.TRUE.toString()));
+        return getRequest(subCategoryEndpoint, parameters, token, Object.class);
+    }
+
+    public Object getView(String viewEndpoint, Header token, String subCategoryId, String viewId) throws URISyntaxException {
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("fresh_req", Boolean.FALSE.toString()));
+        parameters.add(new BasicNameValuePair("available_rollups", Boolean.TRUE.toString()));
+        parameters.add(new BasicNameValuePair("last_view", viewId));
+        ViewRequest.Parent parent = new ViewRequest.Parent(subCategoryId, 6);
+        ViewRequest body = new ViewRequest("List", parent, 1);
+        return postRequestWithParameters(viewEndpoint, parameters, body, token, Object.class);
     }
 }
